@@ -1,181 +1,259 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { analyzeWebsite } from "./analyzer";
-import { generateVariants } from "./generators";
-import { simulateTraffic } from "./simulator";
-import { exportResults } from "./core/export";
-import { init } from "./core/init";
 import fs from "fs";
 import path from "path";
+import { scan, scanWebsite, scanCodebase } from "./scanner";
+import dotenv from "dotenv";
+import {
+  exportContentToMarkdown,
+  exportContentToJson,
+  exportContentToCsv,
+} from "./exporter";
 
+// Setup
+dotenv.config();
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8")
+);
+
+// Create CLI program
 const program = new Command();
-
-// State management
-const STATE_FILE = path.join(process.cwd(), "steelpush-state.json");
-
-function loadState() {
-  try {
-    if (fs.existsSync(STATE_FILE)) {
-      return JSON.parse(fs.readFileSync(STATE_FILE, "utf-8"));
-    }
-  } catch (error) {
-    console.warn("Failed to load state:", error);
-  }
-  return {
-    analysis: null,
-    variants: [],
-    simulation: null,
-  };
-}
-
-function saveState(state: any) {
-  try {
-    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
-  } catch (error) {
-    console.warn("Failed to save state:", error);
-  }
-}
 
 program
   .name("steelpush")
   .description("AI-powered website optimization tool")
-  .version("0.1.0");
+  .version(packageJson.version);
 
+// Create config directory if it doesn't exist
+const configDir = path.join(
+  process.env.HOME || process.env.USERPROFILE || ".",
+  ".steelpush"
+);
+if (!fs.existsSync(configDir)) {
+  fs.mkdirSync(configDir, { recursive: true });
+}
+
+const configPath = path.join(configDir, "config.json");
+
+// Initialize command
 program
   .command("init")
   .description("Initialize Steelpush configuration")
-  .action(async () => {
-    await init();
+  .option("-k, --api-key <key>", "OpenAI API key")
+  .option("-m, --model <model>", "OpenAI model to use (default: gpt-4-turbo)")
+  .action(async (options) => {
+    console.log("Initializing Steelpush...");
+
+    // Get API key if not provided
+    let apiKey = options.apiKey || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      const { default: inquirer } = await import("inquirer");
+      const answers = await inquirer.prompt([
+        {
+          type: "password",
+          name: "apiKey",
+          message: "Enter your OpenAI API key:",
+          validate: (input: string) =>
+            input.length > 0 ? true : "API key is required",
+        },
+      ]);
+      apiKey = answers.apiKey;
+    }
+
+    // Create config
+    const config = {
+      ai: {
+        provider: "openai",
+        model: options.model || "gpt-4-turbo",
+        apiKey,
+      },
+      simulation: {
+        visitorCount: 10,
+        personaCount: 3,
+      },
+      analysis: {
+        optimizableElements: ["headlines", "cta", "value-props"],
+        confidenceThreshold: 0.85,
+      },
+    };
+
+    // Save config
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    console.log(`Configuration saved to ${configPath}`);
+
+    // Also save to .env for current session
+    fs.writeFileSync(".env", `OPENAI_API_KEY=${apiKey}\n`);
+    console.log("API key saved to .env for current session");
+
+    console.log("\nSteelpush initialized successfully!");
   });
 
+// Analyze command
 program
-  .command("analyze")
-  .description("Analyze a website for optimization opportunities")
-  .argument("<url>", "URL of the website to analyze")
-  .option("-o, --output <format>", "Output format (json, table)", "json")
-  .action(async (url: string, options) => {
-    const state = loadState();
-    console.log(`Analyzing website: ${url}`);
+  .command("analyze <target>")
+  .description("Analyze a website or codebase")
+  .option("-o, --output <path>", "Output file path")
+  .option(
+    "-f, --format <format>",
+    "Output format (json, markdown, csv)",
+    "json"
+  )
+  .option(
+    "-m, --max-items <number>",
+    "Maximum number of pages/files to scan",
+    "10"
+  )
+  .action(async (target, options) => {
+    console.log(`Analyzing ${target}...`);
 
-    const result = await analyzeWebsite(url);
-    state.analysis = result;
-    saveState(state);
+    // Check if config exists
+    if (!fs.existsSync(configPath)) {
+      console.error("Steelpush not initialized. Run 'steelpush init' first.");
+      process.exit(1);
+    }
 
-    if (options.output === "json") {
-      console.log(JSON.stringify(result, null, 2));
-    } else {
-      // TODO: Implement table output
-      console.log("Table output not implemented yet");
+    // Load config
+    const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    process.env.OPENAI_API_KEY = config.ai.apiKey;
+
+    try {
+      // Run the scan
+      const scanOptions = {
+        maxPages: parseInt(options.maxItems),
+        maxFiles: parseInt(options.maxItems),
+      };
+
+      const result = await scan(target, scanOptions);
+
+      // Determine output path
+      const outputPath =
+        options.output || `steelpush-analysis-${Date.now()}.${options.format}`;
+
+      // Export results
+      switch (options.format) {
+        case "markdown":
+          await exportContentToMarkdown(result, outputPath);
+          break;
+        case "csv":
+          await exportContentToCsv(result, outputPath);
+          break;
+        case "json":
+        default:
+          await exportContentToJson(result, outputPath);
+          break;
+      }
+
+      console.log(`\nAnalysis complete!`);
+      console.log(`Results saved to ${outputPath}`);
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      process.exit(1);
     }
   });
 
+// Generate command
 program
   .command("generate")
   .description("Generate content variants for optimizable elements")
-  .option(
-    "-e, --element <selector>",
-    "Element selector to generate variants for",
-  )
-  .option("-o, --output <format>", "Output format (json, table)", "json")
+  .option("-i, --input <path>", "Analysis results file (from analyze command)")
+  .option("-o, --output <path>", "Output file path")
+  .option("-c, --count <number>", "Number of variants to generate", "3")
   .action(async (options) => {
-    const state = loadState();
-    if (!state.analysis) {
-      console.error("No analysis found. Please run 'analyze' command first.");
+    console.log("Generating content variants...");
+
+    // Check if input file exists
+    if (!options.input || !fs.existsSync(options.input)) {
+      console.error("Input file not found. Run 'steelpush analyze' first.");
       process.exit(1);
     }
 
-    const element = options.element
-      ? state.analysis.elements.find((e: any) => e.selector === options.element)
-      : state.analysis.elements[0];
+    // Load config
+    const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    process.env.OPENAI_API_KEY = config.ai.apiKey;
 
-    if (!element) {
-      console.error("Element not found in analysis results.");
-      process.exit(1);
-    }
-
-    console.log(`Generating variants for element: ${element.selector}`);
-    const variants = await generateVariants(element);
-    state.variants = variants;
-    saveState(state);
-
-    if (options.output === "json") {
-      console.log(JSON.stringify(variants, null, 2));
-    } else {
-      // TODO: Implement table output
-      console.log("Table output not implemented yet");
-    }
+    // TODO: Implement content generation
+    console.log("Content generation not yet implemented in this CLI version.");
   });
 
+// Simulate command
 program
   .command("simulate")
   .description("Run AI agent simulation")
-  .option("-v, --visitors <count>", "Number of visitors to simulate", "5")
-  .option("-p, --personas <count>", "Number of personas to use", "2")
-  .option("-d, --duration <time>", "Simulation duration (e.g., 1h, 30m)", "1h")
-  .option("-o, --output <format>", "Output format (json, table)", "json")
+  .option(
+    "-i, --input <path>",
+    "Generated variants file (from generate command)"
+  )
+  .option("-o, --output <path>", "Output file path")
+  .option("-v, --visitors <number>", "Number of simulated visitors", "10")
   .action(async (options) => {
-    const state = loadState();
-    if (!state.variants.length) {
-      console.error("No variants found. Please run 'generate' command first.");
+    console.log("Running simulation...");
+
+    // Check if input file exists
+    if (!options.input || !fs.existsSync(options.input)) {
+      console.error("Input file not found. Run 'steelpush generate' first.");
       process.exit(1);
     }
 
-    console.log("Starting simulation...");
-    const results = await simulateTraffic(state.variants, {
-      visitorCount: parseInt(options.visitors),
-      personaCount: parseInt(options.personas),
-      duration: options.duration,
-    });
-    state.simulation = results;
-    saveState(state);
+    // Load config
+    const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+    process.env.OPENAI_API_KEY = config.ai.apiKey;
 
-    if (options.output === "json") {
-      console.log(JSON.stringify(results, null, 2));
-    } else {
-      // TODO: Implement table output
-      console.log("Table output not implemented yet");
-    }
+    // TODO: Implement simulation
+    console.log("Simulation not yet implemented in this CLI version.");
   });
 
+// Results command
 program
   .command("results")
   .description("View optimization results")
-  .option("-o, --output <format>", "Output format (json, table)", "json")
-  .action((options) => {
-    const state = loadState();
-    if (!state.simulation) {
-      console.error(
-        "No simulation results found. Please run 'simulate' command first.",
-      );
+  .option(
+    "-i, --input <path>",
+    "Simulation results file (from simulate command)"
+  )
+  .option("-o, --output <path>", "Output file path")
+  .option(
+    "-f, --format <format>",
+    "Output format (json, markdown, csv)",
+    "markdown"
+  )
+  .action(async (options) => {
+    console.log("Analyzing results...");
+
+    // Check if input file exists
+    if (!options.input || !fs.existsSync(options.input)) {
+      console.error("Input file not found. Run 'steelpush simulate' first.");
       process.exit(1);
     }
 
-    if (options.output === "json") {
-      console.log(JSON.stringify(state.simulation, null, 2));
-    } else {
-      // TODO: Implement table output
-      console.log("Table output not implemented yet");
-    }
+    // TODO: Implement results analysis
+    console.log("Results analysis not yet implemented in this CLI version.");
   });
 
+// Export command
 program
   .command("export")
   .description("Export optimization recommendations")
-  .option("-f, --format <format>", "Export format (json, code)", "json")
+  .option("-i, --input <path>", "Results file (from results command)")
+  .option("-o, --output <path>", "Output directory path")
+  .option("-f, --format <format>", "Output format (code, json, html)", "json")
   .action(async (options) => {
-    const state = loadState();
-    if (!state.simulation) {
-      console.error(
-        "No simulation results found. Please run 'simulate' command first.",
-      );
+    console.log("Exporting recommendations...");
+
+    // Check if input file exists
+    if (!options.input || !fs.existsSync(options.input)) {
+      console.error("Input file not found. Run 'steelpush results' first.");
       process.exit(1);
     }
 
-    await exportResults({
-      ...options,
-      data: state.simulation,
-    });
+    // TODO: Implement export
+    console.log("Export not yet implemented in this CLI version.");
   });
 
-program.parse();
+// Parse arguments
+program.parse(process.argv);
+
+// Show help if no command provided
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

@@ -56,12 +56,12 @@ const SourceCodeAnalysisSchema = z.object({
       path: z.string(),
       type: z.string(),
       hasMarketingContent: z.boolean(),
-    }),
+    })
   ),
 });
 
 export async function analyzeSourceCode(
-  directory: string,
+  directory: string
 ): Promise<SourceCodeAnalysis> {
   console.log(`Starting source code analysis in: ${directory}`);
 
@@ -87,17 +87,23 @@ export async function analyzeSourceCode(
   });
 
   // Create file metadata for the agent
-  const fileMetadata = files.map((file) => {
-  const ext = path.extname(file).toLowerCase();
-  // Skip files specified in .gitignore
-  if (file === '.gitignore' || file.includes('node_modules') || file.includes('dist')) {
-  return null;
-  }
-    return {
-      path: file,
-      type: getFileType(ext),
-    };
-  }).filter(Boolean) as Array<{ path: string; type: string }>;
+  const fileMetadata = files
+    .map((file) => {
+      const ext = path.extname(file).toLowerCase();
+      // Skip files specified in .gitignore
+      if (
+        file === ".gitignore" ||
+        file.includes("node_modules") ||
+        file.includes("dist")
+      ) {
+        return null;
+      }
+      return {
+        path: file,
+        type: getFileType(ext),
+      };
+    })
+    .filter(Boolean) as Array<{ path: string; type: string }>;
 
   // Create the Mastra agent to analyze the source code
   const agent = new Agent({
@@ -175,7 +181,7 @@ export async function analyzeSourceCode(
   for (let i = 0; i < fileMetadata.length; i += batchSize) {
     const batch = fileMetadata.slice(i, i + batchSize);
     console.log(
-      `Processing file batch ${i / batchSize + 1}/${Math.ceil(fileMetadata.length / batchSize)}`,
+      `Processing file batch ${i / batchSize + 1}/${Math.ceil(fileMetadata.length / batchSize)}`
     );
 
     // Ask agent to analyze files
@@ -201,7 +207,7 @@ export async function analyzeSourceCode(
     try {
       // Extract JSON from possible markdown code blocks
       const jsonMatch = result.text.match(
-        /```(?:json)?\s*([\s\S]*?)\s*```/,
+        /```(?:json)?\s*([\s\S]*?)\s*```/
       ) || [null, result.text];
       const jsonString = jsonMatch[1].trim();
 
@@ -226,7 +232,7 @@ export async function analyzeSourceCode(
   const fileMap = fileMetadata.map((file) => ({
     ...file,
     hasMarketingContent: marketingContent.some(
-      (content) => content.path === file.path,
+      (content) => content.path === file.path
     ),
   }));
 
@@ -236,7 +242,7 @@ export async function analyzeSourceCode(
   };
 
   console.log(
-    `Analysis complete. Found ${marketingContent.length} marketing content items in ${fileMap.filter((f) => f.hasMarketingContent).length} files`,
+    `Analysis complete. Found ${marketingContent.length} marketing content items in ${fileMap.filter((f) => f.hasMarketingContent).length} files`
   );
 
   return analysis;

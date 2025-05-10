@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>An AI-powered website optimization and source code analysis tool.</strong>
+  <strong>Website content scanner and source code analysis utility</strong>
 </p>
 
 <p align="center">
@@ -22,37 +22,37 @@
 
 ---
 
-## 🚀 Introduction
+## Introduction
 
-Steelpush is a powerful tool that leverages AI to optimize websites and analyze source code for marketing content. It helps developers and marketers identify, analyze, and improve content across their digital properties.
+Steelpush is a command-line utility for scanning websites and source code repositories to locate, categorize, and analyze content. It helps developers find and classify text content across websites and codebases.
 
-Built with [Mastra](https://github.com/mastraai/mastra), Steelpush provides intelligent analysis of web content and codebase, generating actionable insights and optimization recommendations.
+Built with [Mastra](https://github.com/mastraai/mastra), Steelpush automates the process of finding and organizing content across different types of files and web pages.
 
-## ✨ Features
+## Features
 
 ### Website Analysis
 
-- 🔍 **Content Analysis**: Crawl websites and analyze content elements
-- 🧠 **Pattern Recognition**: Identify content patterns and structures
-- 🔄 **Content Variants**: Generate optimized content alternatives
-- 👥 **Traffic Simulation**: Simulate user interactions with AI agents
-- 📊 **Recommendations**: Get actionable optimization suggestions
+- **Content Scanning**: Crawl websites and extract text content
+- **Pattern Identification**: Find recurring content patterns in websites
+- **Content Variations**: Generate alternative text content
+- **User Simulation**: Test user flows with automated browsers
+- **Reports**: Export findings in structured formats
 
 ### Source Code Analysis
 
-- 📝 **Marketing Content Detection**: Find marketing copy in your codebase
-- 🗺️ **Content Mapping**: Generate a map of marketing content locations
-- 🏷️ **Content Classification**: Categorize content by type (headings, CTAs, etc.)
-- 📄 **Detailed Reports**: Generate comprehensive reports in multiple formats
-- 🌐 **Localization Support**: Analyze translation files for marketing content
+- **Content Location**: Find text content within source code
+- **Content Mapping**: Create maps of where content appears in codebases
+- **Content Categorization**: Organize content by type (headings, buttons, etc.)
+- **Report Generation**: Create structured reports in multiple formats
+- **Localization Analysis**: Scan translation files and compare content
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
 - Node.js 18.x or higher
 - npm, yarn, or pnpm
-- An OpenAI API key for AI functionality
+- OpenAI API key
 
 ### Global Installation
 
@@ -85,7 +85,7 @@ cp .env.example .env
 # Edit .env and add your OpenAI API key
 ```
 
-## 🔧 Configuration
+## Configuration
 
 Create a `.env` file in the root of your project with the following variables:
 
@@ -97,24 +97,24 @@ Optional configuration:
 
 ```env
 # Model configuration
-MODEL_NAME=gpt-4-turbo  # Default model to use
-TEMPERATURE=0.2         # Temperature setting for AI responses
+MODEL_NAME=gpt-4-turbo  # Model to use
+TEMPERATURE=0.2         # Temperature setting
 
 # Analysis settings
 CHUNK_SIZE=4000         # Size of text chunks for analysis
 CHUNK_OVERLAP=200       # Overlap between chunks
 ```
 
-## 📖 Usage
+## Usage
 
-Steelpush provides two main command-line tools:
+Steelpush consists of two main command-line tools:
 
-- `steelpush` - For website analysis and optimization
-- `steelpush-source` - For source code marketing content analysis
+- `steelpush` - For website content analysis
+- `steelpush-source` - For source code content analysis
 
 ### Website Analysis
 
-Analyze a website for optimization opportunities:
+Commands for website content analysis:
 
 ```bash
 # Initialize steelpush (first time only)
@@ -123,29 +123,29 @@ steelpush init
 # Analyze a website
 steelpush analyze https://example.com
 
-# Generate content variants
+# Generate content alternatives
 steelpush generate
 
-# Simulate traffic
+# Run automated user flows
 steelpush simulate --visitors 10 --personas 3
 
-# Export optimization recommendations
+# Export analysis results
 steelpush export --format json
 ```
 
 ### Source Code Analysis
 
-Analyze your codebase for marketing content:
+Commands for codebase content analysis:
 
 ```bash
 # Analyze a project directory
 steelpush-source analyze ./my-project
 
 # Generate a detailed report
-steelpush-source report --type detailed --format markdown --output marketing-report.md
+steelpush-source report --type detailed --format markdown --output content-report.md
 ```
 
-## 📋 Examples
+## Examples
 
 ### Website Analysis Example
 
@@ -162,30 +162,30 @@ Output:
     {
       "file": "index.html",
       "type": "component",
-      "content": "Transform your business with our cutting-edge solution",
-      "context": "<h1>Transform your business with our cutting-edge solution</h1>",
+      "content": "Our product helps businesses grow",
+      "context": "<h1>Our product helps businesses grow</h1>",
       "lineNumber": 42
     },
-    // More content locations...
+    // Additional content locations
   ],
   "patterns": [
     {
       "type": "heading_structure",
-      "description": "Main headings focus on transformation and results",
+      "description": "Main headings focus on business growth",
       "examples": [
-        "Transform your business with our cutting-edge solution",
-        "See real results in half the time"
+        "Our product helps businesses grow",
+        "See measurable results"
       ]
     },
-    // More patterns...
+    // Additional patterns
   ],
   "recommendations": [
     {
-      "type": "headline_optimization",
-      "description": "Use more specific numbers in headlines to increase credibility",
+      "type": "headline_structure",
+      "description": "Include specific metrics in headlines",
       "priority": "high"
     },
-    // More recommendations...
+    // Additional recommendations
   ]
 }
 ```
@@ -193,7 +193,7 @@ Output:
 ### Source Code Analysis Example
 
 ```bash
-# Analyze source code for marketing content
+# Analyze source code content
 steelpush-source analyze ./my-project
 ```
 
@@ -205,7 +205,7 @@ Output:
     {
       "file": "en.json",
       "path": "src/locales/en.json",
-      "content": "Welcome to Our Amazing Product",
+      "content": "Welcome to Our Product",
       "type": "heading",
       "context": "homepage.title",
       "lineNumber": 3
@@ -213,12 +213,12 @@ Output:
     {
       "file": "Header.tsx",
       "path": "src/components/Header.tsx",
-      "content": "Empower Your Business with Cutting-Edge Technology",
+      "content": "Business Solutions",
       "type": "heading",
-      "context": "<h2>Empower Your Business with Cutting-Edge Technology</h2>",
+      "context": "<h2>Business Solutions</h2>",
       "lineNumber": 27
     },
-    // More marketing content items...
+    // Additional content items
   ],
   "fileMap": [
     {
@@ -231,21 +231,21 @@ Output:
       "type": "React TypeScript",
       "hasMarketingContent": true
     },
-    // More files...
+    // Additional files
   ]
 }
 ```
 
-## 🧩 Integration with Development Workflow
+## Integration with Development Workflow
 
-Steelpush can be integrated into your development workflow in several ways:
+Steelpush can be added to development workflows in several ways:
 
 ### CI/CD Integration
 
-Add to your GitHub Actions workflow:
+Add to GitHub Actions workflow:
 
 ```yaml
-name: Marketing Content Analysis
+name: Content Analysis
 
 on:
   pull_request:
@@ -260,16 +260,16 @@ jobs:
         with:
           node-version: 18
       - run: npm install -g steelpush
-      - run: steelpush-source analyze . --output json > marketing-analysis.json
+      - run: steelpush-source analyze . --output json > content-analysis.json
       - uses: actions/upload-artifact@v3
         with:
-          name: marketing-analysis
-          path: marketing-analysis.json
+          name: content-analysis
+          path: content-analysis.json
 ```
 
 ### Pre-commit Hook
 
-Add a pre-commit hook to analyze marketing content before committing:
+Add a pre-commit hook to scan for content before committing:
 
 ```bash
 #!/bin/sh
@@ -278,7 +278,7 @@ Add a pre-commit hook to analyze marketing content before committing:
 steelpush-source analyze . --fast
 ```
 
-## 📝 Development
+## Development
 
 ```bash
 # Run in development mode
@@ -294,23 +294,23 @@ pnpm lint
 pnpm format
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgements
+## Dependencies
 
-- [Mastra](https://github.com/mastraai/mastra) - AI agent framework
+- [Mastra](https://github.com/mastraai/mastra) - Agent framework
 - [Playwright](https://playwright.dev/) - Browser automation
-- [OpenAI](https://openai.com/) - AI models
+- [OpenAI](https://openai.com/) - Text processing models
 - [Commander.js](https://github.com/tj/commander.js/) - Command-line interface
