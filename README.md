@@ -1,7 +1,7 @@
-# SteelPush
+# Steelpush
 
 <p align="center">
-  <img src="https://via.placeholder.com/200x200?text=SteelPush" alt="SteelPush Logo" width="200" />
+  <img src="https://via.placeholder.com/200x200?text=Steelpush" alt="Steelpush Logo" width="200" />
 </p>
 
 <p align="center">
@@ -24,9 +24,9 @@
 
 ## 🚀 Introduction
 
-SteelPush is a powerful tool that leverages AI to optimize websites and analyze source code for marketing content. It helps developers and marketers identify, analyze, and improve content across their digital properties.
+Steelpush is a powerful tool that leverages AI to optimize websites and analyze source code for marketing content. It helps developers and marketers identify, analyze, and improve content across their digital properties.
 
-Built with [Mastra](https://github.com/mastraai/mastra), SteelPush provides intelligent analysis of web content and codebase, generating actionable insights and optimization recommendations.
+Built with [Mastra](https://github.com/mastraai/mastra), Steelpush provides intelligent analysis of web content and codebase, generating actionable insights and optimization recommendations.
 
 ## ✨ Features
 
@@ -107,7 +107,7 @@ CHUNK_OVERLAP=200       # Overlap between chunks
 
 ## 📖 Usage
 
-SteelPush provides two main command-line tools:
+Steelpush provides two main command-line tools:
 
 - `steelpush` - For website analysis and optimization
 - `steelpush-source` - For source code marketing content analysis
@@ -117,7 +117,7 @@ SteelPush provides two main command-line tools:
 Analyze a website for optimization opportunities:
 
 ```bash
-# Initialize Steelpush (first time only)
+# Initialize steelpush (first time only)
 steelpush init
 
 # Analyze a website
@@ -238,7 +238,7 @@ Output:
 
 ## 🧩 Integration with Development Workflow
 
-SteelPush can be integrated into your development workflow in several ways:
+Steelpush can be integrated into your development workflow in several ways:
 
 ### CI/CD Integration
 
