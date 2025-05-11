@@ -1,8 +1,4 @@
-# Steelpush
-
-<p align="center">
-  <img src="https://via.placeholder.com/200x200?text=Steelpush" alt="Steelpush Logo" width="200" />
-</p>
+<h1 align="center">Steelpush</h1>
 
 <p align="center">
   <strong>Website content scanner and source code analysis utility</strong>
@@ -26,7 +22,7 @@
 
 Steelpush is a command-line utility for scanning websites and source code repositories to locate, categorize, and analyze content. It helps developers find and classify text content across websites and codebases.
 
-Built with [Mastra](https://github.com/mastraai/mastra), Steelpush automates the process of finding and organizing content across different types of files and web pages.
+Built with [Mastra](https://github.com/mastraai/mastra) and [Model Context Protocol (MCP)](https://github.com/mastraai/mcp), Steelpush automates the process of finding and organizing content across different types of files and web pages.
 
 ## Features
 
@@ -36,6 +32,7 @@ Built with [Mastra](https://github.com/mastraai/mastra), Steelpush automates the
 - **Pattern Identification**: Find recurring content patterns in websites
 - **Content Variations**: Generate alternative text content
 - **User Simulation**: Test user flows with automated browsers
+- **MCP Support**: Use Model Context Protocol for advanced browser automation
 - **Reports**: Export findings in structured formats
 
 ### Source Code Analysis
@@ -52,7 +49,7 @@ Built with [Mastra](https://github.com/mastraai/mastra), Steelpush automates the
 
 - Node.js 18.x or higher
 - npm, yarn, or pnpm
-- OpenAI API key
+- OpenAI API key or Anthropic API key for MCP features
 
 ### Global Installation
 
@@ -82,7 +79,7 @@ pnpm build
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env and add your OpenAI API key
+# Edit .env and add your API keys
 ```
 
 ## Configuration
@@ -90,27 +87,48 @@ cp .env.example .env
 Create a `.env` file in the root of your project with the following variables:
 
 ```env
+# Choose one or both API keys depending on features you need
 OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
 ```
 
 Optional configuration:
 
 ```env
 # Model configuration
-MODEL_NAME=gpt-4-turbo  # Model to use
-TEMPERATURE=0.2         # Temperature setting
+MODEL_NAME=gpt-4-turbo  # Default model for OpenAI
+ANTHROPIC_MODEL=claude-3-opus-20240229  # Default model for Anthropic
+TEMPERATURE=0.2  # Temperature setting
 
 # Analysis settings
-CHUNK_SIZE=4000         # Size of text chunks for analysis
-CHUNK_OVERLAP=200       # Overlap between chunks
+CHUNK_SIZE=4000  # Size of text chunks for analysis
+CHUNK_OVERLAP=200  # Overlap between chunks
 ```
 
 ## Usage
 
-Steelpush consists of two main command-line tools:
+Steelpush consists of multiple command-line tools:
 
 - `steelpush` - For website content analysis
 - `steelpush-source` - For source code content analysis
+
+### Testing Scripts
+
+For development and testing, the repository includes several test scripts:
+
+```bash
+# Test the scanner with interactive prompts
+pnpm dev
+
+# Test source code analyzer
+pnpm dev:source
+
+# Run MCP-based analysis on a specific website
+npx tsx src/analyze-usetrag-mcp.ts
+
+# Run standard analysis on a specific website
+npx tsx src/analyze-usetrag.ts
+```
 
 ### Website Analysis
 
@@ -120,8 +138,11 @@ Commands for website content analysis:
 # Initialize steelpush (first time only)
 steelpush init
 
-# Analyze a website
+# Analyze a website (standard mode)
 steelpush analyze https://example.com
+
+# Analyze a website with MCP
+steelpush analyze https://example.com --use-mcp
 
 # Generate content alternatives
 steelpush generate
@@ -143,6 +164,21 @@ steelpush-source analyze ./my-project
 
 # Generate a detailed report
 steelpush-source report --type detailed --format markdown --output content-report.md
+```
+
+## MCP Integration
+
+Steelpush supports the [Model Context Protocol (MCP)](https://github.com/mastraai/mcp) for advanced browser automation. MCP allows the scanner to use autonomous navigation and content extraction with direct browser control.
+
+When using MCP features:
+
+1. You need an Anthropic API key (Claude models are recommended)
+2. The system will automatically install and use the required MCP servers
+3. Analysis will be more thorough but may take longer to complete
+
+```bash
+# Run MCP-based analysis
+npx tsx src/analyze-usetrag-mcp.ts
 ```
 
 ## Examples
@@ -178,14 +214,6 @@ Output:
       ]
     },
     // Additional patterns
-  ],
-  "recommendations": [
-    {
-      "type": "headline_structure",
-      "description": "Include specific metrics in headlines",
-      "priority": "high"
-    },
-    // Additional recommendations
   ]
 }
 ```
@@ -210,25 +238,12 @@ Output:
       "context": "homepage.title",
       "lineNumber": 3
     },
-    {
-      "file": "Header.tsx",
-      "path": "src/components/Header.tsx",
-      "content": "Business Solutions",
-      "type": "heading",
-      "context": "<h2>Business Solutions</h2>",
-      "lineNumber": 27
-    },
     // Additional content items
   ],
   "fileMap": [
     {
       "path": "src/locales/en.json",
       "type": "JSON",
-      "hasMarketingContent": true
-    },
-    {
-      "path": "src/components/Header.tsx",
-      "type": "React TypeScript",
       "hasMarketingContent": true
     },
     // Additional files
@@ -281,11 +296,14 @@ steelpush-source analyze . --fast
 ## Development
 
 ```bash
-# Run in development mode
+# Run in development mode (test scanner)
 pnpm dev
 
 # Run source analyzer in development mode
 pnpm dev:source
+
+# Test MCP scanning
+npx tsx src/analyze-usetrag-mcp.ts
 
 # Lint the codebase
 pnpm lint
@@ -311,6 +329,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Dependencies
 
 - [Mastra](https://github.com/mastraai/mastra) - Agent framework
+- [MCP](https://github.com/mastraai/mcp) - Model Context Protocol
 - [Playwright](https://playwright.dev/) - Browser automation
 - [OpenAI](https://openai.com/) - Text processing models
+- [Anthropic](https://anthropic.com/) - Claude models for MCP
 - [Commander.js](https://github.com/tj/commander.js/) - Command-line interface

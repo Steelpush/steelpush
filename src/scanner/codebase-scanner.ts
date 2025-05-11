@@ -4,7 +4,7 @@ import { glob } from "glob";
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { config } from "../config";
 
 export interface CodeContent {
@@ -75,7 +75,7 @@ export async function scanCodebase(
       Be technology-agnostic and understand different frontend frameworks.
       Focus on finding content that impacts user experience and conversion.
     `,
-    model: openai(config.analysis.modelName || "gpt-4-turbo"),
+    model: anthropic(config.analysis.modelName),
     tools,
   });
 

@@ -2,7 +2,7 @@ import { chromium, Browser, Page } from "playwright";
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { config } from "../config";
 
 export interface WebsiteContent {
@@ -72,7 +72,7 @@ export async function scanWebsite(url: string): Promise<WebsiteScanResult> {
         Aim to be thorough without getting distracted by non-essential content.
         Crawl multiple pages but prioritize important ones (homepage, product pages, etc.).
       `,
-      model: openai(config.analysis.modelName || "gpt-4-turbo"),
+      model: anthropic(config.analysis.modelName),
       tools,
     });
 
@@ -143,16 +143,8 @@ function createScanningTools(page: Page) {
       try {
         // Extract all text-containing elements from the page
         return await page.evaluate(() => {
-          const results: Array<{
-            type: string;
-            content: string;
-            location: string;
-            importance: "high" | "medium" | "low";
-            optimizationPotential: "high" | "medium" | "low";
-          }> = [];
-
-          // Helper function to determine element type
-          function getElementType(element: Element): string {
+          // Define helper functions inside the evaluate function to avoid scope issues
+          function getElementType(element) {
             const tagName = element.tagName.toLowerCase();
 
             // Headings
@@ -188,8 +180,7 @@ function createScanningTools(page: Page) {
             return "text";
           }
 
-          // Helper function to determine element location
-          function getElementLocation(element: Element): string {
+          function getElementLocation(element) {
             // Check for common IDs and classes
             const elementClasses = Array.from(element.classList);
             const parentClasses = element.parentElement
@@ -244,8 +235,7 @@ function createScanningTools(page: Page) {
             return "main content";
           }
 
-          // Helper function to determine importance
-          function getImportance(element: Element): "high" | "medium" | "low" {
+          function getImportance(element) {
             const tagName = element.tagName.toLowerCase();
 
             // High importance elements
@@ -272,6 +262,8 @@ function createScanningTools(page: Page) {
             return "low";
           }
 
+          const results = [];
+
           // Find all text-containing elements
           const textElements = Array.from(
             document.querySelectorAll("*")
@@ -295,8 +287,8 @@ function createScanningTools(page: Page) {
             const location = getElementLocation(element);
             const importance = getImportance(element);
 
-            // Determine optimization potential (this is simplified - the AI can do better)
-            let optimizationPotential: "high" | "medium" | "low" = "low";
+            // Determine optimization potential (this is simplified)
+            let optimizationPotential = "low";
             if (importance === "high") optimizationPotential = "high";
             else if (importance === "medium") optimizationPotential = "medium";
 
@@ -311,7 +303,7 @@ function createScanningTools(page: Page) {
 
           return results;
         });
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error extracting content:", error);
         return [];
       }

@@ -2,6 +2,7 @@ import type { WebsiteContent, WebsiteScanResult } from "./website-scanner";
 import type { CodeContent, CodebaseScanResult } from "./codebase-scanner";
 import { scanWebsite as scanWebsiteInternal } from "./website-scanner";
 import { scanCodebase as scanCodebaseInternal } from "./codebase-scanner";
+import { scanWebsiteWithMcp } from "./mcp-website-scanner";
 
 export { WebsiteContent, WebsiteScanResult, CodeContent, CodebaseScanResult };
 
@@ -12,6 +13,7 @@ export interface ScannerOptions {
   maxPages?: number;
   maxFiles?: number;
   includeHiddenContent?: boolean;
+  useMcp?: boolean; // Option to use MCP for website scanning
 }
 
 /**
@@ -35,7 +37,10 @@ export async function scanWebsite(
   url: string,
   options?: ScannerOptions
 ): Promise<ScanResult> {
-  const result = await scanWebsiteInternal(url);
+  // Use MCP scanner if specified in options
+  const result = options?.useMcp
+    ? await scanWebsiteWithMcp(url)
+    : await scanWebsiteInternal(url);
 
   return {
     type: "website",

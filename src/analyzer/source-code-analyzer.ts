@@ -4,7 +4,7 @@ import { glob } from "glob";
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { config } from "../config";
 
 interface MarketingContent {
@@ -170,7 +170,7 @@ export async function analyzeSourceCode(
         ]
       }
     `,
-    model: openai(config.analysis.modelName || "gpt-4-turbo"),
+    model: anthropic(config.analysis.modelName),
     tools: { readFile: readFileTool },
   });
 

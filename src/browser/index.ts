@@ -1,5 +1,4 @@
-import { startMcp, stopMcp } from "@playwright/mcp";
-import { Page, Browser } from "playwright";
+import { Page, Browser, chromium } from "playwright";
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
@@ -16,25 +15,27 @@ interface BrowserSession {
 let activeSessions: BrowserSession[] = [];
 
 /**
- * Starts a browser session with Playwright MCP
+ * Starts a browser session with Playwright
  *
  * @returns Promise resolving to browser session info
  */
 export async function startBrowser(): Promise<BrowserSession> {
   try {
-    console.log("Starting browser with Playwright MCP...");
+    console.log("Starting browser with Playwright...");
 
-    // Start MCP server
-    const { browser, page, wsEndpoint } = await startMcp();
+    // Start browser
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext();
+    const page = await context.newPage();
 
     const session: BrowserSession = {
       browser,
       page,
-      mcpUrl: wsEndpoint,
+      mcpUrl: "direct-browser", // No MCP in this version
     };
 
     activeSessions.push(session);
-    console.log(`Browser started successfully. MCP endpoint: ${wsEndpoint}`);
+    console.log(`Browser started successfully.`);
 
     return session;
   } catch (error) {
@@ -55,7 +56,7 @@ export async function stopBrowser(session: BrowserSession): Promise<void> {
       activeSessions.splice(index, 1);
     }
 
-    await stopMcp();
+    await session.browser.close();
     console.log("Browser stopped successfully");
   } catch (error) {
     console.error("Failed to stop browser:", error);
@@ -137,9 +138,9 @@ export async function createBrowserAgent(session: BrowserSession) {
             .string()
             .optional()
             .describe(
-              "Attribute name to extract (if contentType is 'attribute')",
+              "Attribute name to extract (if contentType is 'attribute')"
             ),
-        }),
+        })
       ),
     }),
     outputSchema: z.array(
@@ -147,7 +148,7 @@ export async function createBrowserAgent(session: BrowserSession) {
         name: z.string(),
         content: z.string(),
         found: z.boolean(),
-      }),
+      })
     ),
     execute: async ({ context }) => {
       const results = [];
@@ -339,7 +340,7 @@ export async function analyzeWebsiteContent(url: string) {
     try {
       // Look for JSON in the response
       const jsonMatch = result.text.match(
-        /```(?:json)?\s*([\s\S]*?)\s*```/,
+        /```(?:json)?\s*([\s\S]*?)\s*```/
       ) || [null, result.text];
       const jsonString = jsonMatch[1].trim();
       const analysisData = JSON.parse(jsonString);

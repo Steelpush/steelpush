@@ -10,8 +10,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
-    "dev": "ts-node src/cli.ts",
-    "dev:source": "ts-node src/cli-source-analyzer.ts",
+    "dev": "tsx src/test-scanner.ts",
+    "dev:source": "tsx src/cli-source-analyzer.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -25,12 +25,15 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.11",
     "@ai-sdk/openai": "^1.3.21",
     "@mastra/core": "^0.9.1",
+    "@mastra/mcp": "^0.4.3",
     "@playwright/mcp": "^0.0.22",
     "ai": "^4.3.15",
     "commander": "^11.0.0",
     "glob": "^11.0.2",
+    "inquirer": "^12.6.1",
     "langchain": "^0.1.0",
     "mastra": "^0.6.0",
     "openai": "^4.0.0",
