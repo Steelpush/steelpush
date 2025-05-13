@@ -1,7 +1,7 @@
 <h1 align="center">Steelpush</h1>
 
 <p align="center">
-  <strong>Website content scanner and source code analysis utility</strong>
+  <strong>Open source AI growth engineer</strong>
 </p>
 
 <p align="center">
