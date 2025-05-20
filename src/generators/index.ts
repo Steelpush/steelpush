@@ -1,5 +1,8 @@
 import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
+import fs from "fs";
+import path from "path";
 
 export interface Element {
   type: string;
@@ -34,9 +37,35 @@ Generate 3 optimized variants with scores and reasoning. Format as JSON with the
 ]`;
 
   try {
+    // Load configuration to determine which provider to use
+    const configPath = path.join(
+      process.env.HOME || process.env.USERPROFILE || ".",
+      ".steelpush",
+      "config.json"
+    );
+    
+    let aiProvider = "anthropic";
+    let aiModel = "claude-3-7-sonnet-20250219";
+    
+    // Check if config exists and read it
+    if (fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+        aiProvider = config.ai.provider || aiProvider;
+        aiModel = config.ai.model || aiModel;
+      } catch (configError) {
+        console.warn("Error reading config, using default AI provider:", configError);
+      }
+    }
+    
+    // Set up the right model based on provider
+    const model = aiProvider === "anthropic" 
+      ? anthropic(aiModel)
+      : openai(aiModel);
+    
     // Use AI SDK to generate variants
     const completion = await generateText({
-      model: openai("gpt-4"),
+      model: model,
       messages: [
         { role: "system", content: systemMessage },
         { role: "user", content: userMessage },

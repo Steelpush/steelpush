@@ -8,6 +8,31 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
+// Helper to get AI configuration
+function getAIConfiguration() {
+  const configPath = path.join(
+    process.env.HOME || process.env.USERPROFILE || ".",
+    ".steelpush",
+    "config.json"
+  );
+  
+  let aiProvider = "anthropic";
+  let aiModel = "claude-3-7-sonnet-20250219";
+  
+  // Check if config exists and read it
+  if (fs.existsSync(configPath)) {
+    try {
+      const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      aiProvider = config.ai.provider || aiProvider;
+      aiModel = config.ai.model || aiModel;
+    } catch (configError) {
+      console.warn("Error reading config, using default AI provider:", configError);
+    }
+  }
+  
+  return { provider: aiProvider, model: aiModel };
+}
+
 // Define types
 interface ContentItem {
   url: string;
@@ -100,12 +125,23 @@ async function simulateConversions(analysisPath: string): Promise<void> {
   const analysis = JSON.parse(fs.readFileSync(analysisPath, "utf-8"));
   const contentItems = analysis.data.content as ContentItem[];
 
-  // Check if we have OpenAI API key
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is required for simulation");
+  // Get AI configuration
+  const aiConfig = getAIConfiguration();
+  
+  // Check if we have the appropriate API key
+  const requiredKey = aiConfig.provider === "anthropic" ? 
+    process.env.ANTHROPIC_API_KEY : 
+    process.env.OPENAI_API_KEY;
+    
+  if (!requiredKey) {
+    throw new Error(`${aiConfig.provider === "anthropic" ? "ANTHROPIC_API_KEY" : "OPENAI_API_KEY"} is required for simulation`);
   }
 
   // Set up the agent for simulation
+  const model = aiConfig.provider === "anthropic" 
+    ? anthropic(aiConfig.model)
+    : openai(aiConfig.model);
+  
   const simulationAgent = new Agent({
     name: "conversion-simulator",
     instructions: `
@@ -113,7 +149,7 @@ async function simulateConversions(analysisPath: string): Promise<void> {
       would perform with various user personas. For each content variant, evaluate how it
       would impact click-through rates and conversion rates compared to the original.
     `,
-    model: openai("gpt-4o-mini"),
+    model: model,
   });
 
   // Process each content item

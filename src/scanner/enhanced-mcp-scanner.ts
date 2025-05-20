@@ -342,6 +342,9 @@ export async function scanWebsiteWithEnhancedMcp(
           await takeScreenshot(`page-${pagesAnalyzed}-error`);
           continue;
         }
+        
+        // Generate content with the agent
+        const result = await agent.generate([
           {
             role: "user",
             content: `
@@ -376,7 +379,7 @@ export async function scanWebsiteWithEnhancedMcp(
               
               Return your findings as a structured JSON array.
             `,
-          },
+          }
         ]);
         
         logProgress(`Received agent response for page ${pagesAnalyzed}`);
