@@ -1,336 +1,176 @@
-<h1 align="center">Steelpush</h1>
+# Steelpush: AI-Powered Website Content Optimization
 
-<p align="center">
-  <strong>Open source AI growth engineer</strong>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#website-analysis">Website Analysis</a> •
-  <a href="#source-code-analysis">Source Code Analysis</a> •
-  <a href="#examples">Examples</a> •
-  <a href="#configuration">Configuration</a> •
-  <a href="#contributing">Contributing</a> •
-  <a href="#license">License</a>
-</p>
-
----
-
-## Introduction
-
-Steelpush is a command-line utility for scanning websites and source code repositories to locate, categorize, and analyze content. It helps developers find and classify text content across websites and codebases.
-
-Built with [Mastra](https://github.com/mastraai/mastra) and [Model Context Protocol (MCP)](https://github.com/mastraai/mcp), Steelpush automates the process of finding and organizing content across different types of files and web pages.
+Steelpush analyzes websites for conversion optimization opportunities, generates content variants, and provides recommendations to improve engagement, conversion rates, and overall user experience.
 
 ## Features
 
-### Website Analysis
+- **Website Analysis**: Scan websites to find content optimization opportunities
+- **Content Generation**: Create variants of existing content using AI
+- **Performance Evaluation**: Test content variants against each other to determine effectiveness
+- **Recommendations**: Get AI-powered recommendations for improvement
+- **Conversion Simulation**: Simulate how content variants might perform with different user personas
 
-- **Content Scanning**: Crawl websites and extract text content
-- **Pattern Identification**: Find recurring content patterns in websites
-- **Content Variations**: Generate alternative text content
-- **User Simulation**: Test user flows with automated browsers
-- **MCP Support**: Use Model Context Protocol for advanced browser automation
-- **Reports**: Export findings in structured formats
-
-### Source Code Analysis
-
-- **Content Location**: Find text content within source code
-- **Content Mapping**: Create maps of where content appears in codebases
-- **Content Categorization**: Organize content by type (headings, buttons, etc.)
-- **Report Generation**: Create structured reports in multiple formats
-- **Localization Analysis**: Scan translation files and compare content
-
-## Installation
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- npm, yarn, or pnpm
-- OpenAI API key or Anthropic API key for MCP features
+- Node.js 18+
+- TypeScript
+- An OpenAI or Anthropic API key
 
-### Global Installation
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Create a `.env` file with your API keys:
+   ```
+   OPENAI_API_KEY=your-api-key-here
+   ```
+
+## Quick Demo
+
+To quickly test the functionality without scanning a live site, use these scripts:
 
 ```bash
-# Using npm
-npm install -g steelpush
+# Generate mock website analysis with content variants
+./generate-mock-variants.sh
 
-# Using yarn
-yarn global add steelpush
-
-# Using pnpm
-pnpm add -g steelpush
+# Simulate conversion rates for the variants
+./simulate-conversions.sh
 ```
 
-### Local Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/steelpush.git
-cd steelpush
-
-# Install dependencies
-pnpm install
-
-# Build the project
-pnpm build
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env and add your API keys
-```
-
-## Configuration
-
-Create a `.env` file in the root of your project with the following variables:
-
-```env
-# Choose one or both API keys depending on features you need
-OPENAI_API_KEY=your_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
-```
-
-Optional configuration:
-
-```env
-# Model configuration
-MODEL_NAME=gpt-4-turbo  # Default model for OpenAI
-ANTHROPIC_MODEL=claude-3-opus-20240229  # Default model for Anthropic
-TEMPERATURE=0.2  # Temperature setting
-
-# Analysis settings
-CHUNK_SIZE=4000  # Size of text chunks for analysis
-CHUNK_OVERLAP=200  # Overlap between chunks
-```
+This will:
+1. Use mock website analysis data
+2. Generate content variants using AI
+3. Simulate how different variants might affect conversion rates
+4. Provide recommendations on which variants are most likely to improve conversions
 
 ## Usage
 
-Steelpush consists of multiple command-line tools:
-
-- `steelpush` - For website content analysis
-- `steelpush-source` - For source code content analysis
-
-### Testing Scripts
-
-For development and testing, the repository includes several test scripts:
-
-```bash
-# Test the scanner with interactive prompts
-pnpm dev
-
-# Test source code analyzer
-pnpm dev:source
-
-# Run MCP-based analysis on a specific website
-npx tsx src/analyze-usetrag-mcp.ts
-
-# Run standard analysis on a specific website
-npx tsx src/analyze-usetrag.ts
-```
-
 ### Website Analysis
 
-Commands for website content analysis:
+Steelpush offers multiple analysis engines to scan websites for optimization opportunities:
+
+#### Standard Analysis
+```bash
+npm run dev:scan
+```
+
+#### Mini MCP Analysis (Recommended)
+```bash
+npm run dev:scan:mini
+```
+A streamlined, fast and reliable scanner with focused analysis:
+- Single-page deep analysis
+- Reliable browser automation
+- Faster model options
+- Robust error handling and timeouts
+- Screenshot capture and automatic fallbacks
+
+#### Enhanced MCP Analysis
+```bash
+npm run dev:scan:enhanced
+```
+Our most advanced scanner with improved web interaction capabilities:
+- Multi-page navigation with automatic link discovery
+- Deep scrolling and content analysis
+- Form interaction and validation
+- Screenshot capture for visual analysis
+
+#### Direct MCP Analysis
+```bash
+npm run dev:scan:direct
+```
+
+#### Multi-turn MCP Analysis
+```bash
+npm run dev:scan:mcp
+```
+
+See [MCP Integration Documentation](docs/MCP-INTEGRATION.md) for detailed information about all MCP scanner variants.
+
+All analysis methods will:
+1. Prompt for an API key if not set (OpenAI or Anthropic)
+2. Load a browser to analyze the target website
+3. Use AI to identify content that could be improved
+4. Generate a report with recommendations
+
+### Content Variant Generation
+
+To generate variants for content:
 
 ```bash
-# Initialize steelpush (first time only)
-steelpush init
-
-# Analyze a website (standard mode)
-steelpush analyze https://example.com
-
-# Analyze a website with MCP
-steelpush analyze https://example.com --use-mcp
-
-# Generate content alternatives
-steelpush generate
-
-# Run automated user flows
-steelpush simulate --visitors 10 --personas 3
-
-# Export analysis results
-steelpush export --format json
+npx ts-node --esm src/generate-variants.ts <analysis-file.json>
 ```
+
+This takes the output from the analysis step and generates alternative content for each item.
+
+### Conversion Simulation
+
+To simulate conversion rates with different variants:
+
+```bash
+npx ts-node --esm src/simulator/simulate-conversions.ts <variants-file.json>
+```
+
+This simulates how different content variants might perform with different user personas, helping you select the best variants to implement.
 
 ### Source Code Analysis
 
-Commands for codebase content analysis:
+Steelpush can also analyze source code repositories for marketing content:
 
 ```bash
-# Analyze a project directory
-steelpush-source analyze ./my-project
-
-# Generate a detailed report
-steelpush-source report --type detailed --format markdown --output content-report.md
+npm run dev:source analyze <directory-path>
 ```
 
-## MCP Integration
+This will:
+1. Scan all relevant source files in the directory
+2. Find marketing content in code, strings, and data files
+3. Generate a report of all marketing content detected
+4. Support multiple output formats (markdown, JSON, CSV)
 
-Steelpush supports the [Model Context Protocol (MCP)](https://github.com/mastraai/mcp) for advanced browser automation. MCP allows the scanner to use autonomous navigation and content extraction with direct browser control.
-
-When using MCP features:
-
-1. You need an Anthropic API key (Claude models are recommended)
-2. The system will automatically install and use the required MCP servers
-3. Analysis will be more thorough but may take longer to complete
-
+You can choose output format:
 ```bash
-# Run MCP-based analysis
-npx tsx src/analyze-usetrag-mcp.ts
+npm run dev:source analyze <directory-path> --format markdown
 ```
 
-## Examples
+## Project Structure
 
-### Website Analysis Example
+- `src/` - Source code
+  - `analyzer/` - Content and code analysis tools
+    - `website-analyzer.ts` - Analyzes websites for marketing content
+    - `source-code-analyzer.ts` - Analyzes source code for marketing content
+  - `browser/` - Browser automation utilities
+  - `scanner/` - Website and codebase scanning
+    - `website-scanner.ts` - Standard website scanner
+    - `direct-mcp-scanner.ts` - Simplified MCP scanner
+    - `mcp-website-scanner.ts` - Multi-turn MCP scanner
+    - `enhanced-mcp-scanner.ts` - Advanced MCP scanner with improved navigation
+    - `codebase-scanner.ts` - Scanner for source code repositories
+  - `simulator/` - Traffic simulation tools
+  - `generators/` - Content generation utilities
+  - `exporter/` - Export formats and templates
+  - `core/` - Shared utilities and types
+  - `cli-source-analyzer.ts` - CLI for source code analysis
 
-```bash
-# Analyze a website
-steelpush analyze https://example.com
-```
+## Output Examples
 
-Output:
+Steelpush generates several output files:
 
-```json
-{
-  "locations": [
-    {
-      "file": "index.html",
-      "type": "component",
-      "content": "Our product helps businesses grow",
-      "context": "<h1>Our product helps businesses grow</h1>",
-      "lineNumber": 42
-    },
-    // Additional content locations
-  ],
-  "patterns": [
-    {
-      "type": "heading_structure",
-      "description": "Main headings focus on business growth",
-      "examples": [
-        "Our product helps businesses grow",
-        "See measurable results"
-      ]
-    },
-    // Additional patterns
-  ]
-}
-```
-
-### Source Code Analysis Example
-
-```bash
-# Analyze source code content
-steelpush-source analyze ./my-project
-```
-
-Output:
-
-```json
-{
-  "marketingContent": [
-    {
-      "file": "en.json",
-      "path": "src/locales/en.json",
-      "content": "Welcome to Our Product",
-      "type": "heading",
-      "context": "homepage.title",
-      "lineNumber": 3
-    },
-    // Additional content items
-  ],
-  "fileMap": [
-    {
-      "path": "src/locales/en.json",
-      "type": "JSON",
-      "hasMarketingContent": true
-    },
-    // Additional files
-  ]
-}
-```
-
-## Integration with Development Workflow
-
-Steelpush can be added to development workflows in several ways:
-
-### CI/CD Integration
-
-Add to GitHub Actions workflow:
-
-```yaml
-name: Content Analysis
-
-on:
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - run: npm install -g steelpush
-      - run: steelpush-source analyze . --output json > content-analysis.json
-      - uses: actions/upload-artifact@v3
-        with:
-          name: content-analysis
-          path: content-analysis.json
-```
-
-### Pre-commit Hook
-
-Add a pre-commit hook to scan for content before committing:
-
-```bash
-#!/bin/sh
-# .git/hooks/pre-commit
-
-steelpush-source analyze . --fast
-```
-
-## Development
-
-```bash
-# Run in development mode (test scanner)
-pnpm dev
-
-# Run source analyzer in development mode
-pnpm dev:source
-
-# Test MCP scanning
-npx tsx src/analyze-usetrag-mcp.ts
-
-# Lint the codebase
-pnpm lint
-
-# Format code
-pnpm format
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -m 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Open a Pull Request
+- `mock-website-analysis.json` - Initial website analysis with optimization recommendations
+- `website-variants.json` - Generated content variants for each optimization opportunity
+- `website-conversion-simulation.json` - Simulation results showing estimated conversion improvements
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT
 
-## Dependencies
+## Acknowledgements
 
-- [Mastra](https://github.com/mastraai/mastra) - Agent framework
-- [MCP](https://github.com/mastraai/mcp) - Model Context Protocol
-- [Playwright](https://playwright.dev/) - Browser automation
-- [OpenAI](https://openai.com/) - Text processing models
-- [Anthropic](https://anthropic.com/) - Claude models for MCP
-- [Commander.js](https://github.com/tj/commander.js/) - Command-line interface
+This project uses several open-source technologies:
+- Mastra for AI agents
+- Playwright for browser automation
+- OpenAI/Anthropic for AI capabilities

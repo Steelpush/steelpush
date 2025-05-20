@@ -8,11 +8,17 @@ import readline from "readline";
 dotenv.config();
 
 // Function to prompt for API key if not available
-async function getAnthropicApiKey(): Promise<string> {
-  // If API key is already set in environment, use it
-  if (process.env.ANTHROPIC_API_KEY) {
+async function getApiKey(): Promise<boolean> {
+  // Check for OpenAI key first
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.length > 10) {
+    console.log("Using OpenAI API key from environment");
+    return true;
+  }
+  
+  // Check for Anthropic key next
+  if (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.length > 10) {
     console.log("Using Anthropic API key from environment");
-    return process.env.ANTHROPIC_API_KEY;
+    return true;
   }
 
   // Otherwise prompt the user
@@ -22,11 +28,68 @@ async function getAnthropicApiKey(): Promise<string> {
   });
 
   return new Promise((resolve) => {
-    rl.question("Please enter your Anthropic API key: ", (apiKey) => {
-      rl.close();
-      process.env.ANTHROPIC_API_KEY = apiKey;
+    rl.question("Which AI provider do you want to use? (1 for OpenAI, 2 for Anthropic): ", async (choice) => {
+      if (choice === "1" || choice.toLowerCase().includes("open")) {
+        const apiKey = await promptForKey(rl, "OpenAI", "OPENAI_API_KEY");
+        const model = await promptForModel(rl, "OpenAI", "gpt-4o");
+        process.env.OPENAI_MODEL = model;
+        rl.close();
+        resolve(apiKey.length > 0);
+      } else {
+        const apiKey = await promptForKey(rl, "Anthropic", "ANTHROPIC_API_KEY");
+        rl.close();
+        resolve(apiKey.length > 0);
+      }
+    });
+  });
+}
 
-      // Save to .env file for future use
+async function promptForKey(rl: readline.Interface, provider: string, envVar: string): Promise<string> {
+  return new Promise((resolve) => {
+    rl.question(`Please enter your ${provider} API key: `, (apiKey) => {
+      if (apiKey && apiKey.length > 0) {
+        process.env[envVar] = apiKey;
+
+        // Save to .env file for future use
+        try {
+          const envPath = path.join(process.cwd(), ".env");
+          let envContent = "";
+
+          if (fs.existsSync(envPath)) {
+            envContent = fs.readFileSync(envPath, "utf-8");
+
+            // Replace existing key line if it exists
+            if (envContent.includes(`${envVar}=`)) {
+              envContent = envContent.replace(
+                new RegExp(`${envVar}=.*`),
+                `${envVar}=${apiKey}`
+              );
+            } else {
+              // Otherwise add it as a new line
+              envContent += `\n${envVar}=${apiKey}`;
+            }
+          } else {
+            // Create new .env file
+            envContent = `${envVar}=${apiKey}`;
+          }
+
+          fs.writeFileSync(envPath, envContent);
+          console.log(`${provider} API key saved to .env file`);
+        } catch (err) {
+          console.warn(`Could not save ${provider} API key to .env file:`, err);
+        }
+      }
+      resolve(apiKey);
+    });
+  });
+}
+
+async function promptForModel(rl: readline.Interface, provider: string, defaultModel: string): Promise<string> {
+  return new Promise((resolve) => {
+    rl.question(`Enter ${provider} model to use (default: ${defaultModel}): `, (model) => {
+      const selectedModel = model && model.trim().length > 0 ? model.trim() : defaultModel;
+      
+      // Save to .env file
       try {
         const envPath = path.join(process.cwd(), ".env");
         let envContent = "";
@@ -34,57 +97,65 @@ async function getAnthropicApiKey(): Promise<string> {
         if (fs.existsSync(envPath)) {
           envContent = fs.readFileSync(envPath, "utf-8");
 
-          // Replace existing ANTHROPIC_API_KEY line if it exists
-          if (envContent.includes("ANTHROPIC_API_KEY=")) {
+          // Replace existing model line if it exists
+          if (envContent.includes(`${provider.toUpperCase()}_MODEL=`)) {
             envContent = envContent.replace(
-              /ANTHROPIC_API_KEY=.*/,
-              `ANTHROPIC_API_KEY=${apiKey}`
+              new RegExp(`${provider.toUpperCase()}_MODEL=.*`),
+              `${provider.toUpperCase()}_MODEL=${selectedModel}`
             );
           } else {
             // Otherwise add it as a new line
-            envContent += `\nANTHROPIC_API_KEY=${apiKey}`;
+            envContent += `\n${provider.toUpperCase()}_MODEL=${selectedModel}`;
           }
         } else {
           // Create new .env file
-          envContent = `ANTHROPIC_API_KEY=${apiKey}`;
+          envContent = `${provider.toUpperCase()}_MODEL=${selectedModel}`;
         }
 
         fs.writeFileSync(envPath, envContent);
-        console.log("API key saved to .env file");
+        console.log(`${provider} model preference saved to .env file`);
       } catch (err) {
-        console.warn("Could not save API key to .env file:", err);
+        console.warn(`Could not save ${provider} model preference to .env file:`, err);
       }
-
-      resolve(apiKey);
+      
+      resolve(selectedModel);
     });
   });
 }
 
 async function main() {
   try {
-    console.log("Starting MCP website analysis setup...");
+    console.log("Starting Enhanced MCP website analysis setup...");
 
-    // Ensure Anthropic API key is set
-    const apiKey = await getAnthropicApiKey();
-    if (!apiKey) {
+    // Ensure API key is set
+    const hasApiKey = await getApiKey();
+    if (!hasApiKey) {
       throw new Error(
-        "No API key provided. Cannot continue without an Anthropic API key."
+        "No API key provided. Cannot continue without an API key."
       );
     }
 
-    console.log("Starting MCP website analysis for https://usetrag.com/");
+    // Target URL (can be customized)
+    const defaultUrl = "https://example.com/"; // Use example.com which is more reliable for testing
+    
+    // Allow command line argument for URL
+    const url = process.argv[2] || defaultUrl;
+    
+    console.log(`Starting enhanced website analysis for ${url}`);
 
-    const url = "https://usetrag.com/";
     const result = await scanWebsite(url, {
-      useMcp: true,
-      timeout: 300000, // 5 minute timeout
-    }); // Use the MCP-based scanner
+      useEnhancedMcp: true,  // Use our enhanced scanner
+      maxPages: 5,           // Analyze up to 5 pages
+      maxDepth: 2,           // Go up to 2 clicks deep
+      headless: true,        // Run headless by default
+      timeout: 300000,       // 5 minute timeout
+    });
 
     // Save results to file
-    const outputPath = path.join(process.cwd(), "usetrag-mcp-analysis.json");
+    const outputPath = path.join(process.cwd(), "usetrag-enhanced-analysis.json");
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
 
-    console.log(`\nMCP Analysis completed successfully!`);
+    console.log(`\nEnhanced Analysis completed successfully!`);
     console.log(`Results saved to: ${outputPath}`);
 
     // Print summary
@@ -168,21 +239,19 @@ async function main() {
       }
 
       console.log(`\nFull analysis saved to: ${outputPath}`);
+      
+      // Mention screenshot location
+      console.log(`\nScreenshots saved to: ${path.join(process.cwd(), "screenshots")}`);
     }
   } catch (error) {
-    console.error("MCP Analysis failed:", error);
+    console.error("Enhanced Analysis failed:", error);
 
     if (error instanceof Error) {
       // Display more specific error guidance
       if (error.message.includes("API")) {
         console.error("\nThis appears to be an API issue. Please check:");
-        console.error("- Your Anthropic API key is valid and not expired");
-        console.error(
-          "- The model name 'claude-3-7-sonnet-20250219' is available to your account"
-        );
-        console.error(
-          "- You have sufficient credits in your Anthropic account"
-        );
+        console.error("- Your API key is valid and not expired");
+        console.error("- You have sufficient credits in your account");
       } else if (
         error.message.includes("MCP") ||
         error.message.includes("tool")

@@ -1,7 +1,7 @@
 {
   "type": "website",
   "source": "https://usetrag.com/",
-  "timestamp": 1747192504233,
+  "timestamp": 1746950175843,
   "data": {
     "baseUrl": "https://usetrag.com/",
     "scannedPages": [
@@ -9,7 +9,7 @@
     ],
     "content": [],
     "metadata": {
-      "scanDuration": 19767,
+      "scanDuration": 13479,
       "pageCount": 1,
       "contentCount": 0
     }

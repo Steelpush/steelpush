@@ -2,89 +2,33 @@ import { scanWebsite, WebsiteScanResult } from "./scanner";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
-import readline from "readline";
 
 // Load environment variables
 dotenv.config();
 
-// Function to prompt for API key if not available
-async function getAnthropicApiKey(): Promise<string> {
-  // If API key is already set in environment, use it
-  if (process.env.ANTHROPIC_API_KEY) {
-    console.log("Using Anthropic API key from environment");
-    return process.env.ANTHROPIC_API_KEY;
-  }
-
-  // Otherwise prompt the user
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question("Please enter your Anthropic API key: ", (apiKey) => {
-      rl.close();
-      process.env.ANTHROPIC_API_KEY = apiKey;
-
-      // Save to .env file for future use
-      try {
-        const envPath = path.join(process.cwd(), ".env");
-        let envContent = "";
-
-        if (fs.existsSync(envPath)) {
-          envContent = fs.readFileSync(envPath, "utf-8");
-
-          // Replace existing ANTHROPIC_API_KEY line if it exists
-          if (envContent.includes("ANTHROPIC_API_KEY=")) {
-            envContent = envContent.replace(
-              /ANTHROPIC_API_KEY=.*/,
-              `ANTHROPIC_API_KEY=${apiKey}`
-            );
-          } else {
-            // Otherwise add it as a new line
-            envContent += `\nANTHROPIC_API_KEY=${apiKey}`;
-          }
-        } else {
-          // Create new .env file
-          envContent = `ANTHROPIC_API_KEY=${apiKey}`;
-        }
-
-        fs.writeFileSync(envPath, envContent);
-        console.log("API key saved to .env file");
-      } catch (err) {
-        console.warn("Could not save API key to .env file:", err);
-      }
-
-      resolve(apiKey);
-    });
-  });
-}
-
 async function main() {
   try {
-    console.log("Starting MCP website analysis setup...");
+    console.log("Starting direct MCP website analysis...");
 
-    // Ensure Anthropic API key is set
-    const apiKey = await getAnthropicApiKey();
-    if (!apiKey) {
+    // Check for API key
+    if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error(
-        "No API key provided. Cannot continue without an Anthropic API key."
+        "No ANTHROPIC_API_KEY found in environment. Please set this in your .env file."
       );
     }
 
-    console.log("Starting MCP website analysis for https://usetrag.com/");
+    console.log("Starting direct MCP analysis for https://usetrag.com/");
 
     const url = "https://usetrag.com/";
     const result = await scanWebsite(url, {
-      useMcp: true,
-      timeout: 300000, // 5 minute timeout
-    }); // Use the MCP-based scanner
+      useDirectMcp: true, // Use the direct MCP scanner
+    });
 
     // Save results to file
-    const outputPath = path.join(process.cwd(), "usetrag-mcp-analysis.json");
+    const outputPath = path.join(process.cwd(), "usetrag-direct-analysis.json");
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
 
-    console.log(`\nMCP Analysis completed successfully!`);
+    console.log(`\nDirect MCP Analysis completed successfully!`);
     console.log(`Results saved to: ${outputPath}`);
 
     // Print summary
@@ -170,7 +114,7 @@ async function main() {
       console.log(`\nFull analysis saved to: ${outputPath}`);
     }
   } catch (error) {
-    console.error("MCP Analysis failed:", error);
+    console.error("Direct MCP Analysis failed:", error);
 
     if (error instanceof Error) {
       // Display more specific error guidance

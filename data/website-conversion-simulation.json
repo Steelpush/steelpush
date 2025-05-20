@@ -1,0 +1,261 @@
+{
+  "type": "website",
+  "source": "https://usetrag.com/",
+  "timestamp": 1718395147841,
+  "data": {
+    "baseUrl": "https://usetrag.com/",
+    "scannedPages": [
+      "https://usetrag.com/",
+      "https://usetrag.com/features",
+      "https://usetrag.com/pricing"
+    ],
+    "content": [
+      {
+        "url": "https://usetrag.com/",
+        "type": "heading",
+        "content": "Build RAG systems that work",
+        "location": "hero section",
+        "importance": "high",
+        "optimizationPotential": "high",
+        "issue": "The heading is too generic and doesn't clearly communicate the specific value proposition or differentiation from competitors",
+        "recommendation": "Make it more specific: 'Build Enterprise-Grade RAG Systems in Minutes, Not Months'",
+        "variants": [
+          "Build Enterprise-Grade RAG Systems in Minutes, Not Months",
+          "Deploy Production-Ready RAG Applications in Days, Not Quarters",
+          "Create Reliable RAG Systems 10x Faster Than Custom Development"
+        ],
+        "simulationResults": [
+          {
+            "variant": "Build RAG systems that work",
+            "clickRate": 2.4,
+            "conversionRate": 1.1,
+            "improvement": "0%"
+          },
+          {
+            "variant": "Build Enterprise-Grade RAG Systems in Minutes, Not Months",
+            "clickRate": 3.8,
+            "conversionRate": 1.9,
+            "improvement": "72%"
+          },
+          {
+            "variant": "Deploy Production-Ready RAG Applications in Days, Not Quarters",
+            "clickRate": 3.6,
+            "conversionRate": 1.7,
+            "improvement": "55%"
+          },
+          {
+            "variant": "Create Reliable RAG Systems 10x Faster Than Custom Development",
+            "clickRate": 4.0,
+            "conversionRate": 2.1,
+            "improvement": "91%"
+          }
+        ]
+      },
+      {
+        "url": "https://usetrag.com/",
+        "type": "cta",
+        "content": "Get Started",
+        "location": "hero section",
+        "importance": "high",
+        "optimizationPotential": "medium",
+        "issue": "The CTA is generic and doesn't create urgency or communicate value",
+        "recommendation": "Make it more value-oriented: 'Start Building for Free' or 'Deploy Your First RAG in 10 Minutes'",
+        "variants": [
+          "Start Building for Free",
+          "Deploy Your First RAG in 10 Minutes",
+          "Launch Your RAG Project Today"
+        ],
+        "simulationResults": [
+          {
+            "variant": "Get Started",
+            "clickRate": 2.2,
+            "conversionRate": 1.0,
+            "improvement": "0%"
+          },
+          {
+            "variant": "Start Building for Free",
+            "clickRate": 3.1,
+            "conversionRate": 1.4,
+            "improvement": "40%"
+          },
+          {
+            "variant": "Deploy Your First RAG in 10 Minutes",
+            "clickRate": 3.5,
+            "conversionRate": 1.7,
+            "improvement": "70%"
+          },
+          {
+            "variant": "Launch Your RAG Project Today",
+            "clickRate": 2.8,
+            "conversionRate": 1.3,
+            "improvement": "30%"
+          }
+        ]
+      },
+      {
+        "url": "https://usetrag.com/",
+        "type": "value proposition",
+        "content": "Trag simplifies RAG stack development for production use cases.",
+        "location": "below hero section",
+        "importance": "high",
+        "optimizationPotential": "high",
+        "issue": "The value proposition is too technical and focuses on the tool rather than outcomes for the user",
+        "recommendation": "Reframe around benefits: 'Deploy production-ready RAG applications in days, not months - without massive engineering teams'",
+        "variants": [
+          "Deploy production-ready RAG applications in days, not months - without massive engineering teams",
+          "Build enterprise RAG systems in 80% less time with 50% fewer resources",
+          "Get RAG to production in days, not months, with your existing team"
+        ],
+        "simulationResults": [
+          {
+            "variant": "Trag simplifies RAG stack development for production use cases.",
+            "clickRate": 2.1,
+            "conversionRate": 1.0,
+            "improvement": "0%"
+          },
+          {
+            "variant": "Deploy production-ready RAG applications in days, not months - without massive engineering teams",
+            "clickRate": 3.6,
+            "conversionRate": 1.8,
+            "improvement": "80%"
+          },
+          {
+            "variant": "Build enterprise RAG systems in 80% less time with 50% fewer resources",
+            "clickRate": 3.8,
+            "conversionRate": 1.9,
+            "improvement": "90%"
+          },
+          {
+            "variant": "Get RAG to production in days, not months, with your existing team",
+            "clickRate": 3.5,
+            "conversionRate": 1.7,
+            "improvement": "70%"
+          }
+        ]
+      },
+      {
+        "url": "https://usetrag.com/features",
+        "type": "heading",
+        "content": "Features",
+        "location": "page header",
+        "importance": "medium",
+        "optimizationPotential": "medium",
+        "issue": "The heading is too generic and doesn't communicate the unique benefits",
+        "recommendation": "Change to a benefit-oriented heading: 'Everything You Need for Enterprise RAG'",
+        "variants": [
+          "Everything You Need for Enterprise RAG",
+          "The Complete RAG Platform for Production Applications",
+          "Enterprise-Ready RAG Components, No Assembly Required"
+        ],
+        "simulationResults": [
+          {
+            "variant": "Features",
+            "clickRate": 2.0,
+            "conversionRate": 0.9,
+            "improvement": "0%"
+          },
+          {
+            "variant": "Everything You Need for Enterprise RAG",
+            "clickRate": 2.8,
+            "conversionRate": 1.4,
+            "improvement": "56%"
+          },
+          {
+            "variant": "The Complete RAG Platform for Production Applications",
+            "clickRate": 3.0,
+            "conversionRate": 1.5,
+            "improvement": "67%"
+          },
+          {
+            "variant": "Enterprise-Ready RAG Components, No Assembly Required",
+            "clickRate": 3.1,
+            "conversionRate": 1.6,
+            "improvement": "78%"
+          }
+        ]
+      },
+      {
+        "url": "https://usetrag.com/pricing",
+        "type": "pricing structure",
+        "content": "Free Plan / Pro Plan / Enterprise",
+        "location": "pricing table",
+        "importance": "high",
+        "optimizationPotential": "medium",
+        "issue": "The plan names are generic and don't communicate value or appropriate use cases",
+        "recommendation": "Rename plans to be more descriptive of use cases: 'Developer Sandbox / Team Deployment / Enterprise Scale'",
+        "variants": [
+          "Developer Sandbox / Team Deployment / Enterprise Scale",
+          "Starter / Professional / Organization",
+          "Prototype / Production / Enterprise"
+        ],
+        "simulationResults": [
+          {
+            "variant": "Free Plan / Pro Plan / Enterprise",
+            "clickRate": 2.3,
+            "conversionRate": 1.1,
+            "improvement": "0%"
+          },
+          {
+            "variant": "Developer Sandbox / Team Deployment / Enterprise Scale",
+            "clickRate": 3.1,
+            "conversionRate": 1.5,
+            "improvement": "36%"
+          },
+          {
+            "variant": "Starter / Professional / Organization",
+            "clickRate": 2.9,
+            "conversionRate": 1.4,
+            "improvement": "27%"
+          },
+          {
+            "variant": "Prototype / Production / Enterprise",
+            "clickRate": 3.2,
+            "conversionRate": 1.5,
+            "improvement": "36%"
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "scanDuration": 28341,
+      "pageCount": 3,
+      "contentCount": 5,
+      "conversionMetrics": {
+        "baseline": {
+          "clickRate": 2.4,
+          "conversionRate": 1.2
+        },
+        "estimated": {
+          "clickRate": 3.8,
+          "conversionRate": 1.9,
+          "improvement": "58%"
+        }
+      },
+      "simulationResults": {
+        "averageImprovement": "81%",
+        "bestVariants": [
+          {
+            "variant": "Create Reliable RAG Systems 10x Faster Than Custom Development",
+            "improvement": "91%"
+          },
+          {
+            "variant": "Build enterprise RAG systems in 80% less time with 50% fewer resources",
+            "improvement": "90%"
+          },
+          {
+            "variant": "Enterprise-Ready RAG Components, No Assembly Required",
+            "improvement": "78%"
+          },
+          {
+            "variant": "Deploy Your First RAG in 10 Minutes",
+            "improvement": "70%"
+          },
+          {
+            "variant": "Developer Sandbox / Team Deployment / Enterprise Scale",
+            "improvement": "36%"
+          }
+        ]
+      }
+    }
+  }
+}

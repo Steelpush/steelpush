@@ -12,6 +12,8 @@ export interface WebsiteContent {
   location: string; // Description of where this content appears
   importance: "high" | "medium" | "low";
   optimizationPotential: "high" | "medium" | "low";
+  issue?: string; // Description of what's wrong or suboptimal
+  recommendation?: string; // Specific suggestion for improvement
 }
 
 export interface WebsiteScanResult {
