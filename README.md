@@ -1,176 +1,104 @@
-# Steelpush: AI-Powered Website Content Optimization
+# Steelpush: AI Growth Engineer
 
-Steelpush analyzes websites for conversion optimization opportunities, generates content variants, and provides recommendations to improve engagement, conversion rates, and overall user experience.
+Steelpush is an open-source tool that uses AI agents to analyze websites, generate content variants, 
+simulate user behavior, and provide optimization recommendations - all without requiring backend infrastructure.
 
 ## Features
 
-- **Website Analysis**: Scan websites to find content optimization opportunities
-- **Content Generation**: Create variants of existing content using AI
-- **Performance Evaluation**: Test content variants against each other to determine effectiveness
-- **Recommendations**: Get AI-powered recommendations for improvement
-- **Conversion Simulation**: Simulate how content variants might perform with different user personas
+- 🔍 **Website Analysis**: AI-powered scanning of websites to identify optimization opportunities
+- ✍️ **Content Generation**: Create compelling variants for headlines, CTAs, and other content elements
+- 🧪 **User Simulation**: Simulate visitor behavior with different personas
+- 📊 **Results Analysis**: Data-driven optimization recommendations with confidence scores
+- 🚀 **Export Tools**: Generate implementation code for your website improvements
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- TypeScript
-- An OpenAI or Anthropic API key
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Create a `.env` file with your API keys:
-   ```
-   OPENAI_API_KEY=your-api-key-here
-   ```
-
-## Quick Demo
-
-To quickly test the functionality without scanning a live site, use these scripts:
+## Installation
 
 ```bash
-# Generate mock website analysis with content variants
-./generate-mock-variants.sh
+# Install the package
+npm install -g steelpush
 
-# Simulate conversion rates for the variants
-./simulate-conversions.sh
+# Initialize with your API key
+steelpush init
 ```
-
-This will:
-1. Use mock website analysis data
-2. Generate content variants using AI
-3. Simulate how different variants might affect conversion rates
-4. Provide recommendations on which variants are most likely to improve conversions
 
 ## Usage
 
-### Website Analysis
-
-Steelpush offers multiple analysis engines to scan websites for optimization opportunities:
-
-#### Standard Analysis
-```bash
-npm run dev:scan
-```
-
-#### Mini MCP Analysis (Recommended)
-```bash
-npm run dev:scan:mini
-```
-A streamlined, fast and reliable scanner with focused analysis:
-- Single-page deep analysis
-- Reliable browser automation
-- Faster model options
-- Robust error handling and timeouts
-- Screenshot capture and automatic fallbacks
-
-#### Enhanced MCP Analysis
-```bash
-npm run dev:scan:enhanced
-```
-Our most advanced scanner with improved web interaction capabilities:
-- Multi-page navigation with automatic link discovery
-- Deep scrolling and content analysis
-- Form interaction and validation
-- Screenshot capture for visual analysis
-
-#### Direct MCP Analysis
-```bash
-npm run dev:scan:direct
-```
-
-#### Multi-turn MCP Analysis
-```bash
-npm run dev:scan:mcp
-```
-
-See [MCP Integration Documentation](docs/MCP-INTEGRATION.md) for detailed information about all MCP scanner variants.
-
-All analysis methods will:
-1. Prompt for an API key if not set (OpenAI or Anthropic)
-2. Load a browser to analyze the target website
-3. Use AI to identify content that could be improved
-4. Generate a report with recommendations
-
-### Content Variant Generation
-
-To generate variants for content:
+### Analyze a Website
 
 ```bash
-npx ts-node --esm src/generate-variants.ts <analysis-file.json>
+# Basic analysis
+steelpush analyze https://example.com
+
+# With options
+steelpush analyze https://example.com --max-pages 5 --format markdown --output analysis.md
 ```
 
-This takes the output from the analysis step and generates alternative content for each item.
-
-### Conversion Simulation
-
-To simulate conversion rates with different variants:
+### Generate Content Variants
 
 ```bash
-npx ts-node --esm src/simulator/simulate-conversions.ts <variants-file.json>
+# Generate variants from analysis
+steelpush generate --input analysis.json
 ```
 
-This simulates how different content variants might perform with different user personas, helping you select the best variants to implement.
-
-### Source Code Analysis
-
-Steelpush can also analyze source code repositories for marketing content:
+### Simulate User Behavior
 
 ```bash
-npm run dev:source analyze <directory-path>
+# Run simulation on variants
+steelpush simulate --input variants.json
 ```
 
-This will:
-1. Scan all relevant source files in the directory
-2. Find marketing content in code, strings, and data files
-3. Generate a report of all marketing content detected
-4. Support multiple output formats (markdown, JSON, CSV)
+### View Results
 
-You can choose output format:
 ```bash
-npm run dev:source analyze <directory-path> --format markdown
+# Get optimization recommendations
+steelpush results --input simulation.json
 ```
 
-## Project Structure
+### Export Implementation
 
-- `src/` - Source code
-  - `analyzer/` - Content and code analysis tools
-    - `website-analyzer.ts` - Analyzes websites for marketing content
-    - `source-code-analyzer.ts` - Analyzes source code for marketing content
-  - `browser/` - Browser automation utilities
-  - `scanner/` - Website and codebase scanning
-    - `website-scanner.ts` - Standard website scanner
-    - `direct-mcp-scanner.ts` - Simplified MCP scanner
-    - `mcp-website-scanner.ts` - Multi-turn MCP scanner
-    - `enhanced-mcp-scanner.ts` - Advanced MCP scanner with improved navigation
-    - `codebase-scanner.ts` - Scanner for source code repositories
-  - `simulator/` - Traffic simulation tools
-  - `generators/` - Content generation utilities
-  - `exporter/` - Export formats and templates
-  - `core/` - Shared utilities and types
-  - `cli-source-analyzer.ts` - CLI for source code analysis
+```bash
+# Export implementation code
+steelpush export --input results.json --format code
+```
 
-## Output Examples
+## Requirements
 
-Steelpush generates several output files:
+- Node.js 16+
+- Either an OpenAI API key or an Anthropic API key
 
-- `mock-website-analysis.json` - Initial website analysis with optimization recommendations
-- `website-variants.json` - Generated content variants for each optimization opportunity
-- `website-conversion-simulation.json` - Simulation results showing estimated conversion improvements
+## Configuration
+
+Steelpush supports both OpenAI and Anthropic Claude models. By default, it uses Anthropic's Claude.
+
+```bash
+# Configure with OpenAI
+steelpush init --provider openai --api-key YOUR_API_KEY
+
+# Configure with Anthropic (default)
+steelpush init --provider anthropic --api-key YOUR_API_KEY
+```
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/steelpush.git
+cd steelpush
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run the CLI
+npm start
+```
 
 ## License
 
 MIT
 
-## Acknowledgements
+---
 
-This project uses several open-source technologies:
-- Mastra for AI agents
-- Playwright for browser automation
-- OpenAI/Anthropic for AI capabilities
+Built with [Anthropic's Claude](https://anthropic.com) and [Playwright](https://playwright.dev)
