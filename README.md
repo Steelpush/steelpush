@@ -1,4 +1,10 @@
-# Steelpush: AI Growth Engineer
+<div align="center" style="margin-bottom: 20px">
+  <img src="steelpush_emblem.png" alt="Steelpush Logo" width="100" />
+</div>
+
+<h1 align="center">
+    Steelpush: AI Growth Engineer
+</h1>
 
 Steelpush is an open-source tool that uses AI agents to analyze websites, generate content variants, 
 simulate user behavior, and provide optimization recommendations - all without requiring backend infrastructure.
