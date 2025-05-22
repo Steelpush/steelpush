@@ -4,14 +4,15 @@
   "description": "AI-powered website optimization tool",
   "main": "dist/index.js",
   "bin": {
-    "steelpush": "./dist/cli.js",
-    "steelpush-source": "./dist/cli-source-analyzer.js"
+    "steelpush": "./dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/cli.js",
-    "dev": "tsx src/test-scanner.ts",
-    "dev:source": "tsx src/cli-source-analyzer.ts",
+    "start": "node dist/cli/index.js",
+    "dev": "tsx src/cli/index.ts",
+    "analyze": "tsx src/cli/index.ts analyze",
+    "example": "tsx src/examples/simple-scan.ts",
+    "test": "node simple-test.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },

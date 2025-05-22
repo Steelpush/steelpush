@@ -5,7 +5,10 @@ node_modules/
 # Compiled output
 dist/
 build/
-
+archive
+data
+test-outputs
+test-project
 # Environment variables
 .env
 .env.local

@@ -1,0 +1,38 @@
+{
+  "type": "website",
+  "source": "https://example.com/",
+  "timestamp": 1747740990546,
+  "data": {
+    "baseUrl": "https://example.com/",
+    "scannedPages": [
+      "https://example.com/"
+    ],
+    "content": [
+      {
+        "url": "https://example.com/",
+        "type": "text",
+        "content": "It seems there is an issue with navigating to the specified URL using the current browser setup. The...",
+        "location": "page",
+        "importance": "medium",
+        "optimizationPotential": "medium",
+        "issue": "Extracted from unstructured analysis",
+        "recommendation": "Review this element manually"
+      },
+      {
+        "url": "https://example.com/",
+        "type": "text",
+        "content": "To proceed, I recommend checking the URL for correctness or trying a different method to access the ...",
+        "location": "page",
+        "importance": "medium",
+        "optimizationPotential": "medium",
+        "issue": "Extracted from unstructured analysis",
+        "recommendation": "Review this element manually"
+      }
+    ],
+    "metadata": {
+      "scanDuration": 15305,
+      "pageCount": 1,
+      "contentCount": 2
+    }
+  }
+}

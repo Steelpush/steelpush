@@ -3,6 +3,8 @@ import type { CodeContent, CodebaseScanResult } from "./codebase-scanner";
 import { scanWebsite as scanWebsiteInternal } from "./website-scanner";
 import { scanCodebase as scanCodebaseInternal } from "./codebase-scanner";
 import { scanWebsiteWithMcp } from "./mcp-website-scanner";
+import { scanWebsiteWithDirectMcp } from "./direct-mcp-scanner";
+import { scanWebsiteWithEnhancedMcp } from "./enhanced-mcp-scanner";
 
 export { WebsiteContent, WebsiteScanResult, CodeContent, CodebaseScanResult };
 
@@ -14,6 +16,11 @@ export interface ScannerOptions {
   maxFiles?: number;
   includeHiddenContent?: boolean;
   useMcp?: boolean; // Option to use MCP for website scanning
+  useDirectMcp?: boolean; // Option to use the simplified direct MCP scanner
+  useEnhancedMcp?: boolean; // Option to use the enhanced MCP scanner with improved navigation
+  maxDepth?: number; // Maximum depth for website crawling
+  headless?: boolean; // Whether to run browser in headless mode
+  timeout?: number; // Timeout for scanning operations in milliseconds
 }
 
 /**
@@ -37,10 +44,31 @@ export async function scanWebsite(
   url: string,
   options?: ScannerOptions
 ): Promise<ScanResult> {
-  // Use MCP scanner if specified in options
-  const result = options?.useMcp
-    ? await scanWebsiteWithMcp(url)
-    : await scanWebsiteInternal(url);
+  // Choose the appropriate scanner implementation
+  let result: WebsiteScanResult;
+
+  if (options?.useEnhancedMcp) {
+    // Use the enhanced MCP implementation with improved interaction capabilities
+    console.log("Using enhanced MCP scanner with improved interactions");
+    result = await scanWebsiteWithEnhancedMcp(url, {
+      maxPages: options.maxPages,
+      maxDepth: options.maxDepth,
+      headless: options.headless !== false, // Default to true if not specified
+      timeout: options.timeout,
+    });
+  } else if (options?.useDirectMcp) {
+    // Use the direct MCP implementation (recommended for stability)
+    console.log("Using direct MCP scanner");
+    result = await scanWebsiteWithDirectMcp(url);
+  } else if (options?.useMcp) {
+    // Use the multi-turn MCP implementation
+    console.log("Using multi-turn MCP scanner");
+    result = await scanWebsiteWithMcp(url);
+  } else {
+    // Use the standard website scanner
+    console.log("Using standard website scanner");
+    result = await scanWebsiteInternal(url);
+  }
 
   return {
     type: "website",

@@ -1,0 +1,4 @@
+page.evaluate: Target page, context or browser has been closed
+    at scanWebsiteWithDirectMcp (/Users/khachatur/Documents/steelpush/src/scanner/direct-mcp-scanner.ts:73:16)
+    at scanWebsite (/Users/khachatur/Documents/steelpush/src/scanner/index.ts:49:14)
+    at main (/Users/khachatur/Documents/steelpush/src/analyze-usetrag-openai.ts:78:20)
