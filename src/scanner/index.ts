@@ -1,12 +1,32 @@
-import type { WebsiteContent, WebsiteScanResult } from "./website-scanner";
 import type { CodeContent, CodebaseScanResult } from "./codebase-scanner";
-import { scanWebsite as scanWebsiteInternal } from "./website-scanner";
 import { scanCodebase as scanCodebaseInternal } from "./codebase-scanner";
-import { scanWebsiteWithMcp } from "./mcp-website-scanner";
-import { scanWebsiteWithDirectMcp } from "./direct-mcp-scanner";
-import { scanWebsiteWithEnhancedMcp } from "./enhanced-mcp-scanner";
+import {
+  scanWebsiteAdvanced,
+  PageContent,
+  OptimizableElement,
+} from "./advanced-scanner";
 
-export { WebsiteContent, WebsiteScanResult, CodeContent, CodebaseScanResult };
+// Define compatible types based on advanced-scanner
+export interface WebsiteContent {
+  url: string;
+  type: string;
+  content: string;
+  location: string;
+  importance: string;
+  optimizationPotential: string;
+  issue?: string;
+  recommendation?: string;
+}
+
+export interface WebsiteScanResult {
+  pages: Array<{
+    pageUrl: string;
+    pageTitle: string;
+    optimizableElements: OptimizableElement[];
+  }>;
+}
+
+export { CodeContent, CodebaseScanResult };
 
 /**
  * Main interface for the scanner module
@@ -15,12 +35,12 @@ export interface ScannerOptions {
   maxPages?: number;
   maxFiles?: number;
   includeHiddenContent?: boolean;
-  useMcp?: boolean; // Option to use MCP for website scanning
-  useDirectMcp?: boolean; // Option to use the simplified direct MCP scanner
-  useEnhancedMcp?: boolean; // Option to use the enhanced MCP scanner with improved navigation
   maxDepth?: number; // Maximum depth for website crawling
   headless?: boolean; // Whether to run browser in headless mode
   timeout?: number; // Timeout for scanning operations in milliseconds
+  interactiveMode?: boolean; // Enable button clicking and interactions
+  visionMode?: boolean; // Enable AI vision analysis
+  generateReport?: boolean; // Generate comprehensive conversion report
 }
 
 /**
@@ -34,7 +54,7 @@ export interface ScanResult {
 }
 
 /**
- * Scans a website for content using browser automation
+ * Scans a website for content using the advanced scanner
  *
  * @param url The URL to scan
  * @param options Scanning options
@@ -44,31 +64,26 @@ export async function scanWebsite(
   url: string,
   options?: ScannerOptions
 ): Promise<ScanResult> {
-  // Choose the appropriate scanner implementation
-  let result: WebsiteScanResult;
+  console.log("Using advanced scanner with vision and interactions");
 
-  if (options?.useEnhancedMcp) {
-    // Use the enhanced MCP implementation with improved interaction capabilities
-    console.log("Using enhanced MCP scanner with improved interactions");
-    result = await scanWebsiteWithEnhancedMcp(url, {
-      maxPages: options.maxPages,
-      maxDepth: options.maxDepth,
-      headless: options.headless !== false, // Default to true if not specified
-      timeout: options.timeout,
-    });
-  } else if (options?.useDirectMcp) {
-    // Use the direct MCP implementation (recommended for stability)
-    console.log("Using direct MCP scanner");
-    result = await scanWebsiteWithDirectMcp(url);
-  } else if (options?.useMcp) {
-    // Use the multi-turn MCP implementation
-    console.log("Using multi-turn MCP scanner");
-    result = await scanWebsiteWithMcp(url);
-  } else {
-    // Use the standard website scanner
-    console.log("Using standard website scanner");
-    result = await scanWebsiteInternal(url);
-  }
+  const advancedResult = await scanWebsiteAdvanced(url, {
+    maxPages: options?.maxPages,
+    maxDepth: options?.maxDepth,
+    headless: options?.headless !== false,
+    timeout: options?.timeout,
+    interactiveMode: options?.interactiveMode !== false,
+    visionMode: options?.visionMode !== false,
+    generateReport: options?.generateReport !== false,
+  });
+
+  // Convert to WebsiteScanResult format
+  const result: WebsiteScanResult = {
+    pages: advancedResult.data.pages.map((page) => ({
+      pageUrl: page.pageUrl,
+      pageTitle: page.pageTitle,
+      optimizableElements: page.optimizableElements,
+    })),
+  };
 
   return {
     type: "website",
