@@ -5,43 +5,41 @@
  * AI-powered website optimization tool
  */
 
-import { Command } from 'commander';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { 
-  initCommand, 
-  analyzeCommand, 
+import { Command } from "commander";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
+import {
+  initCommand,
+  analyzeCommand,
+  approveCommand,
   generateCommand,
-  simulateCommand,
-  resultsCommand,
-  exportCommand 
-} from '../commands';
+  deployCommand,
+} from "../commands";
 
-// Set up paths
+// Set up paths for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const packageJsonPath = path.join(__dirname, '../../package.json');
+const packageJsonPath = path.join(__dirname, "../../package.json");
 
 // Load package.json
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
 
 // Set up the CLI program
 const program = new Command();
 program
-  .name('steelpush')
-  .description('AI-powered website optimization tool')
+  .name("steelpush")
+  .description("AI-powered website optimization tool")
   .version(packageJson.version);
 
 // Add commands
 initCommand(program);
 analyzeCommand(program);
+approveCommand(program);
 
-// TODO: Enable these commands once they're fully implemented
-// generateCommand(program);
-// simulateCommand(program);
-// resultsCommand(program);
-// exportCommand(program);
+// Enable implemented commands
+generateCommand(program);
+deployCommand(program);
 
 // Parse arguments
 program.parse(process.argv);

@@ -1,0 +1,16 @@
+{
+  "website_url": "https://demo.steelpush.com",
+  "analysis_timestamp": "2025-05-29T15:34:36.266Z",
+  "opportunities": [
+    {
+      "id": "opp_001",
+      "element_type": "text_content",
+      "original_content": "Scan failed: prompt is too long: 234672 tokens > 200000 maximum",
+      "element_selector": "body",
+      "context_description": "N/A on /",
+      "optimization_reasoning": "Scanner error. Check MCP server and try again",
+      "confidence_score": 0.9,
+      "approved": null
+    }
+  ]
+}

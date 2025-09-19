@@ -1,14 +1,14 @@
 /**
- * Advanced website scanner that uses Playwright to crawl and analyze websites
+ * Advanced website scanner using Mastra MCP
+ * Uses AI agent with browser tools to scan and analyze websites for optimization opportunities
  */
 
-import fs from 'fs';
-import path from 'path';
-import { chromium } from 'playwright';
-import { anthropic } from '@ai-sdk/anthropic';
-import { openai } from '@ai-sdk/openai';
-import { generateText } from 'ai';
-import { loadConfig } from '../utils/config';
+import * as fs from "fs";
+import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
+import { Agent } from "@mastra/core/agent";
+import { MCPClient } from "@mastra/mcp";
+import { loadConfig } from "../utils/config";
 
 // Types
 export interface ScanOptions {
@@ -17,12 +17,9 @@ export interface ScanOptions {
   headless?: boolean;
   timeout?: number;
   screenshotsDir?: string;
-}
-
-export interface PageContent {
-  pageUrl: string;
-  pageTitle: string;
-  optimizableElements: OptimizableElement[];
+  interactiveMode?: boolean;
+  visionMode?: boolean;
+  generateReport?: boolean;
 }
 
 export interface OptimizableElement {
@@ -30,14 +27,23 @@ export interface OptimizableElement {
   selector: string;
   content: string;
   location: string;
-  importance: 'high' | 'medium' | 'low';
-  optimizationPotential: 'high' | 'medium' | 'low';
+  importance: "high" | "medium" | "low";
+  optimizationPotential: "high" | "medium" | "low";
   issue: string;
   recommendation: string;
 }
 
+export interface PageContent {
+  pageUrl: string;
+  pageTitle: string;
+  screenshots: string[];
+  interactions: any[];
+  optimizableElements: OptimizableElement[];
+  visionAnalysis?: any;
+}
+
 export interface ScanResult {
-  type: 'website';
+  type: "website";
   source: string;
   timestamp: number;
   data: {
@@ -46,331 +52,343 @@ export interface ScanResult {
 }
 
 /**
- * Scan a website using a recursive crawl approach
+ * Main website scanning function using Mastra MCP
  */
 export async function scanWebsiteAdvanced(
   url: string,
   options: ScanOptions = {}
 ): Promise<ScanResult> {
-  const maxPages = options.maxPages || 3;
-  const maxDepth = options.maxDepth || 2;
-  const headless = options.headless !== false; // Default to true
-  const timeout = options.timeout || 60000;
-  const screenshotsDir = options.screenshotsDir || 'screenshots';
-  
-  console.log(`Starting scan of ${url} (max ${maxPages} pages, depth ${maxDepth})`);
-  
-  // Create screenshots directory if it doesn't exist
+  console.log(`🚀 Scanning website: ${url}`);
+  const startTime = Date.now();
+
+  // Create screenshots directory
+  const screenshotsDir = options.screenshotsDir || "screenshots";
   if (!fs.existsSync(screenshotsDir)) {
     fs.mkdirSync(screenshotsDir, { recursive: true });
   }
-  
+
   // Get AI configuration
   const config = loadConfig();
-  let model;
-  
   if (!config) {
-    throw new Error('Config not found. Run steelpush init first.');
+    throw new Error("Config not found. Run steelpush init first.");
   }
-  
-  if (config.ai.provider === 'anthropic') {
-    if (!process.env.ANTHROPIC_API_KEY && !config.ai.apiKey) {
-      throw new Error('ANTHROPIC_API_KEY not found in environment or config');
-    }
-    model = anthropic(config.ai.model || 'claude-3-7-sonnet-20250219');
-    console.log('Using Anthropic model:', config.ai.model || 'claude-3-7-sonnet-20250219');
+
+  // Set up AI model
+  let model;
+  if (config.ai.provider === "anthropic") {
+    model = anthropic(config.ai.model || "claude-opus-4-20250514");
   } else {
-    if (!process.env.OPENAI_API_KEY && !config.ai.apiKey) {
-      throw new Error('OPENAI_API_KEY not found in environment or config');
+    model = openai(config.ai.model || "gpt-4");
+  }
+
+  // Configure MCP Client for Playwright
+  console.log("🔧 Setting up MCP client...");
+  const mcp = new MCPClient({
+    servers: {
+      playwright: {
+        command: "npx",
+        args: ["@playwright/mcp@latest", "--headless"],
+      },
+    },
+  });
+
+  // Test MCP connection
+  console.log("🔗 Connecting to MCP servers...");
+  try {
+    const tools = await mcp.getTools();
+    console.log(`✅ MCP connected! Available tools: ${tools.length}`);
+    console.log("🛠️ Tools:", tools.map((t: any) => t.name).join(", "));
+
+    // Create website analysis agent
+    const agent = new Agent({
+      name: "Website Scanner",
+      instructions: `
+        You are a systematic website scanner. Follow these EXACT steps but KEEP RESPONSES CONCISE:
+        
+        STEP 1: INITIAL NAVIGATION
+        - Navigate to the provided URL and take a screenshot
+        - Report ONLY: page title, main heading, key sections (max 3 sentences)
+        
+        STEP 2: DOCUMENT CURRENT PAGE  
+        - Extract key content but SUMMARIZE don't dump everything
+        - List main CTAs and navigation items (max 5 each)
+        - Note page structure briefly
+        
+        STEP 3: FIND MORE PAGES
+        - Identify internal links but list ONLY the 3-5 most important ones
+        - Skip minor/duplicate links
+        
+        STEP 4: SYSTEMATIC EXPLORATION  
+        - Visit MAX 3 additional pages only
+        - For each page: brief summary (2-3 sentences max)
+        - Don't repeat full content analysis
+        
+        RESPONSE FORMAT:
+        Always respond with BRIEF summaries:
+        1. Current action: "Navigating to [URL]" or "Analyzing [URL]" 
+        2. Key findings: 2-3 sentences maximum
+        3. Next step: What you'll do next
+        
+        CRITICAL RULES:
+        - NEVER include full page content in your response
+        - SUMMARIZE everything - be concise
+        - Stop after analyzing 4 pages total (homepage + 3 others)
+        - Focus on KEY findings only, not exhaustive details
+        - Keep each response under 200 words
+      `,
+      model: model,
+      tools: tools,
+    });
+
+    // Start scanning
+    console.log("🔍 Agent analyzing website...");
+    console.log("📡 Starting browser automation via MCP...");
+    console.log("🤖 Agent working on:", url);
+    console.log("⏳ This may take 30-60 seconds...\n");
+
+    // Have the agent scan the website with streaming
+    console.log("🤖 Agent progress:\n");
+
+    const streamResult = await agent.stream([
+      {
+        role: "user",
+        content: `SYSTEMATIC WEBSITE SCAN: ${url}
+
+        Execute these steps in order:
+        
+        STEP 1: Navigate to ${url} and take a screenshot
+        STEP 2: Document everything on the homepage (content, CTAs, navigation)
+        STEP 3: Find all internal links and navigation menu items
+        STEP 4: Visit each discovered page and repeat documentation
+        STEP 5: Report your findings in a structured format
+        
+        Current action: Navigate to ${url} and begin systematic scan
+        
+        Work through each step methodically. Report what you're doing and what you find.`,
+      },
+    ]);
+
+    let fullResponse = "";
+
+    // Stream the response in real-time
+    for await (const chunk of streamResult.textStream) {
+      process.stdout.write(chunk);
+      fullResponse += chunk;
     }
-    model = openai(config.ai.model || 'gpt-4');
-    console.log('Using OpenAI model:', config.ai.model || 'gpt-4');
-  }
-  
-  // Initialize browser
-  const browser = await chromium.launch({ headless });
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  
-  // Keep track of visited pages
-  const visitedUrls = new Set<string>();
-  const pages: PageContent[] = [];
-  
-  /**
-   * Helper function to take screenshot
-   */
-  async function takeScreenshot(page: any, name: string): Promise<string> {
-    const screenshotPath = path.join(screenshotsDir, `${name}-${Date.now()}.png`);
-    await page.screenshot({ path: screenshotPath });
-    return screenshotPath;
-  }
-  
-  /**
-   * Analyze a webpage using AI
-   */
-  async function analyzeWebpage(
-    url: string,
-    html: string,
-    title: string
-  ): Promise<PageContent> {
-    console.log(`\nAnalyzing page: ${title}`);
-    
+
+    // Get the final result
+    const result = await streamResult.text;
+
+    console.log("✅ Agent finished processing!");
+    console.log("📝 Analysis complete, parsing results...");
+    console.log(
+      "🔍 Raw agent response length:",
+      result.length || 0,
+      "characters"
+    );
+
+    // Log the full response for debugging
+    if (result) {
+      console.log("\n📄 Full agent response:");
+      console.log("=".repeat(50));
+      console.log(result);
+      console.log("=".repeat(50));
+      console.log("");
+    }
+
+    // Parse the agent's response
+    let pageData: PageContent;
+
     try {
-      // Create the prompt for the AI
-      const prompt = `
-        Analyze this webpage at ${url} for conversion optimization opportunities.
+      // Try to extract JSON from the response
+      const jsonMatch = result.match(/```(?:json)?\s*([\s\S]*?)\s*```/) || [
+        null,
+        result,
+      ];
+      const parsedData = JSON.parse(jsonMatch[1]);
 
-        URL: ${url}
-        Title: ${title}
-        
-        I'll provide you with relevant parts of the HTML content to analyze.
-        \`\`\`html
-        ${html.substring(0, 20000)} ${html.length > 20000 ? '... (truncated)' : ''}
-        \`\`\`
+      // Handle new comprehensive format
+      if (parsedData.siteMap && parsedData.pages) {
+        console.log(
+          `🗺️ Site map discovered: ${parsedData.siteMap.totalPages} pages`
+        );
+        console.log(
+          `📄 URLs found: ${parsedData.siteMap.discoveredUrls?.length || 0}`
+        );
 
-        You are an expert in website conversion rate optimization (CRO). Your task is to analyze this page
-        and identify 3-5 specific elements that could be improved to increase conversions. Focus on:
-        
-        1. Headlines and value propositions
-        2. Call to action buttons
-        3. Forms and input fields
-        4. Navigation and user flow
-        5. Trust indicators and social proof
-        
-        For each element, provide:
-        - Type (headline, CTA, form, etc.)
-        - Selector (CSS selector or description of where to find it)
-        - Content (the actual text)
-        - Location on the page (header, middle section, footer, etc.)
-        - Importance (high, medium, low)
-        - Optimization potential (high, medium, low)
-        - Specific issue with the current implementation
-        - Recommendation for improvement
-        
-        Format your response as a JSON object like this:
-        {
-          "pageUrl": "${url}",
-          "pageTitle": "${title}",
-          "optimizableElements": [
-            {
-              "type": "headline",
-              "selector": "h1.hero-title",
-              "content": "Current headline text",
-              "location": "Hero section",
-              "importance": "high",
-              "optimizationPotential": "medium",
-              "issue": "Too technical, doesn't focus on benefits",
-              "recommendation": "Change to benefit-oriented headline that addresses customer pain points"
-            },
-            // More elements...
-          ]
-        }
-      `;
+        // Convert comprehensive data to our PageContent format
+        const pages = parsedData.pages.map((page: any) => ({
+          pageUrl: page.url,
+          pageTitle: page.pageTitle,
+          screenshots: [],
+          interactions: [],
+          optimizableElements:
+            page.enhancementOpportunities?.map((opp: any) => ({
+              type: opp.area,
+              selector: `${opp.area}-element`,
+              content: opp.current,
+              location: "page",
+              importance: opp.priority,
+              optimizationPotential: opp.priority,
+              issue: opp.issue,
+              recommendation: opp.enhancement,
+            })) || [],
+          visionAnalysis: {
+            siteMap: parsedData.siteMap,
+            contentSections: page.contentSections,
+            ctaElements: page.ctaElements,
+            navigationElements: page.navigationElements,
+          },
+        }));
 
-      // Generate analysis using AI model
-      const completion = await generateText({
-        model: model,
-        messages: [
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.2,
-      });
+        console.log(
+          `✅ Processed ${pages.length} pages with detailed intelligence`
+        );
 
-      // Get the response text
-      let responseText;
-      try {
-        responseText = completion.toString();
-      } catch (error) {
-        responseText = completion.text || JSON.stringify(completion);
-      }
-      
-      // Parse the response
-      let analysisResult;
-      try {
-        // Try extracting JSON from code blocks
-        const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        if (jsonMatch && jsonMatch[1]) {
-          analysisResult = JSON.parse(jsonMatch[1].trim());
-        } else {
-          // Try parsing the whole response
-          analysisResult = JSON.parse(responseText);
-        }
-      } catch (error) {
-        console.log('Error parsing AI response as JSON, creating fallback structure');
-        // Create fallback structure
-        analysisResult = {
-          pageUrl: url,
-          pageTitle: title,
-          optimizableElements: [{
-            type: 'headline',
-            selector: 'h1',
-            content: title,
-            location: 'Header',
-            importance: 'high',
-            optimizationPotential: 'medium',
-            issue: 'Current headline may not clearly communicate unique value proposition',
-            recommendation: 'Make the headline more benefit-focused and specific to target audience'
-          }]
+        // Save findings to markdown file
+        await saveAnalysisToMarkdown(
+          url,
+          result,
+          pages,
+          Date.now() - startTime
+        );
+
+        // Return all pages found
+        return {
+          type: "website",
+          source: url,
+          timestamp: Date.now(),
+          data: { pages },
         };
+      } else {
+        // Fallback for single page format
+        pageData = {
+          pageUrl: parsedData.pageUrl || url,
+          pageTitle: parsedData.pageTitle || "Untitled",
+          screenshots: [],
+          interactions: [],
+          optimizableElements: parsedData.optimizableElements || [],
+          visionAnalysis: parsedData.visionAnalysis,
+        };
+
+        console.log(
+          `✅ Found ${pageData.optimizableElements.length} optimization opportunities`
+        );
       }
-      
-      return analysisResult;
-    } catch (error) {
-      console.error(`Error analyzing page: ${error.message}`);
-      // Return minimal structure on error
-      return {
+    } catch (parseError) {
+      console.warn("⚠️ Could not parse JSON response, creating fallback");
+      console.log("📄 Raw response:", result.substring(0, 500));
+
+      // Create fallback analysis
+      pageData = {
         pageUrl: url,
-        pageTitle: title,
-        optimizableElements: [{
-          type: 'error',
-          selector: 'body',
-          content: `Error analyzing: ${error.message}`,
-          location: 'N/A',
-          importance: 'medium',
-          optimizationPotential: 'medium',
-          issue: 'Failed to analyze page',
-          recommendation: 'Try again or analyze manually'
-        }]
+        pageTitle: "Analysis Complete",
+        screenshots: [],
+        interactions: [],
+        optimizableElements: [
+          {
+            type: "analysis",
+            selector: "body",
+            content: result.substring(0, 200),
+            location: "page",
+            importance: "medium",
+            optimizationPotential: "medium",
+            issue: "Raw analysis available",
+            recommendation: "Review the detailed analysis text",
+          },
+        ],
       };
     }
-  }
-  
-  /**
-   * Process a page and its links recursively
-   */
-  async function processPage(pageUrl: string, depth = 0): Promise<void> {
-    // Skip if already visited or max pages reached
-    if (visitedUrls.has(pageUrl) || pages.length >= maxPages) {
-      return;
-    }
-    
-    // Add to visited URLs
-    visitedUrls.add(pageUrl);
-    
-    // Navigate to the page
-    console.log(`\nNavigating to page ${pages.length + 1}: ${pageUrl} (depth: ${depth})`);
-    try {
-      await page.goto(pageUrl, { timeout, waitUntil: 'networkidle' });
-    } catch (error) {
-      console.error(`Error navigating to ${pageUrl}: ${error.message}`);
-      return;
-    }
-    
-    const pageTitle = await page.title();
-    console.log(`Page loaded: ${pageTitle}`);
-    
-    // Take initial screenshot
-    const pageNumber = pages.length + 1;
-    await takeScreenshot(page, `page-${pageNumber}-initial`);
-    
-    // Scroll through the page
-    console.log('Scrolling through page...');
-    await page.evaluate(() => {
-      window.scrollTo(0, 0);
-      return new Promise((resolve) => {
-        let totalHeight = 0;
-        const distance = 300;
-        const timer = setInterval(() => {
-          const scrollHeight = document.body.scrollHeight;
-          window.scrollBy(0, distance);
-          totalHeight += distance;
-          
-          if (totalHeight >= scrollHeight) {
-            clearInterval(timer);
-            resolve(true);
-          }
-        }, 100);
-      });
-    });
-    
-    // Take scrolled screenshot
-    await takeScreenshot(page, `page-${pageNumber}-scrolled`);
-    
-    // Get the HTML content
-    const html = await page.content();
-    
-    // Analyze the page
-    const pageResult = await analyzeWebpage(pageUrl, html, pageTitle);
-    
-    // Add to pages collection
-    pages.push(pageResult);
-    
-    // Take final screenshot
-    await takeScreenshot(page, `page-${pageNumber}-final`);
-    
-    // Collect links if we're not at max depth
-    if (depth < maxDepth && pages.length < maxPages) {
-      console.log(`Collecting links from ${pageUrl}...`);
-      
-      // Get all links
-      const links = await page.evaluate(() => {
-        const anchors = Array.from(document.querySelectorAll('a[href]'));
-        return anchors.map(a => ({
-          href: a.href,
-          text: a.textContent.trim(),
-          isNavigation: a.closest('nav, header') !== null
-        }));
-      });
-      
-      // Filter links to same domain
-      const sameHostLinks = links.filter(link => {
-        try {
-          const linkUrl = new URL(link.href);
-          const baseUrl = new URL(url);
-          return linkUrl.hostname === baseUrl.hostname;
-        } catch (e) {
-          return false;
-        }
-      });
-      
-      // Prioritize navigation links
-      const prioritizedLinks = [
-        ...sameHostLinks.filter(link => link.isNavigation),
-        ...sameHostLinks.filter(link => !link.isNavigation)
-      ];
-      
-      // Get unique links
-      const uniqueLinks = [...new Set(prioritizedLinks.map(link => link.href))];
-      
-      // Process links recursively
-      for (const nextUrl of uniqueLinks) {
-        if (visitedUrls.has(nextUrl) || pages.length >= maxPages) {
-          continue;
-        }
-        
-        // Skip fragment links
-        if (nextUrl.includes('#')) {
-          continue;
-        }
-        
-        await processPage(nextUrl, depth + 1);
-        
-        if (pages.length >= maxPages) {
-          break;
-        }
-      }
-    }
-  }
-  
-  try {
-    // Start processing with the main URL
-    await processPage(url);
-    
-    // Close the browser
-    await browser.close();
-    
-    // Return the scan result
+
+    const scanDuration = Date.now() - startTime;
+    console.log(`⏱️ Scan completed in ${(scanDuration / 1000).toFixed(1)}s`);
+
+    // Save findings to markdown file
+    await saveAnalysisToMarkdown(
+      url,
+      result,
+      pageData ? [pageData] : [],
+      scanDuration
+    );
+
     return {
-      type: 'website',
+      type: "website",
       source: url,
       timestamp: Date.now(),
       data: {
-        pages
-      }
+        pages: [pageData],
+      },
     };
-  } catch (error) {
-    console.error(`Scan error: ${error.message}`);
-    await browser.close();
-    throw error;
+  } catch (mcpError) {
+    console.error("❌ MCP connection failed:", mcpError);
+    throw new Error(`MCP setup failed: ${mcpError}`);
   }
+}
+
+/**
+ * Save analysis findings to a markdown file
+ */
+async function saveAnalysisToMarkdown(
+  url: string,
+  agentResponse: string,
+  pages: PageContent[],
+  scanDuration: number
+): Promise<void> {
+  const timestamp = new Date().toISOString();
+  const filename = `steelpush-analysis-${Date.now()}.md`;
+
+  let markdown = `# Website Analysis Report\n\n`;
+  markdown += `**Target URL:** ${url}\n`;
+  markdown += `**Analysis Date:** ${timestamp}\n`;
+  markdown += `**Scan Duration:** ${(scanDuration / 1000).toFixed(1)}s\n\n`;
+
+  markdown += `## Agent's Raw Analysis\n\n`;
+  markdown += `\`\`\`\n${agentResponse}\n\`\`\`\n\n`;
+
+  if (pages.length > 0) {
+    markdown += `## Structured Findings\n\n`;
+
+    pages.forEach((page, index) => {
+      markdown += `### ${index + 1}. ${page.pageTitle}\n`;
+      markdown += `**URL:** ${page.pageUrl}\n\n`;
+
+      if (page.optimizableElements.length > 0) {
+        markdown += `**Optimization Opportunities:**\n\n`;
+        page.optimizableElements.forEach((element, i) => {
+          markdown += `${i + 1}. **${element.type.toUpperCase()}** (${element.importance} priority)\n`;
+          markdown += `   - **Content:** "${element.content}"\n`;
+          markdown += `   - **Location:** ${element.location}\n`;
+          markdown += `   - **Issue:** ${element.issue}\n`;
+          markdown += `   - **Recommendation:** ${element.recommendation}\n\n`;
+        });
+      }
+
+      if (page.visionAnalysis) {
+        markdown += `**Additional Analysis:**\n`;
+        if (page.visionAnalysis.contentSections) {
+          markdown += `- Content sections found\n`;
+        }
+        if (page.visionAnalysis.ctaElements) {
+          markdown += `- CTA elements identified\n`;
+        }
+        if (page.visionAnalysis.navigationElements) {
+          markdown += `- Navigation structure mapped\n`;
+        }
+        markdown += `\n`;
+      }
+    });
+  }
+
+  markdown += `## Summary\n\n`;
+  markdown += `- **Pages Analyzed:** ${pages.length}\n`;
+  const totalOpportunities = pages.reduce(
+    (sum, page) => sum + page.optimizableElements.length,
+    0
+  );
+  markdown += `- **Total Optimization Opportunities:** ${totalOpportunities}\n`;
+  markdown += `- **Generated:** ${timestamp}\n`;
+
+  // Write to file
+  fs.writeFileSync(filename, markdown);
+  console.log(`📄 Markdown report saved to: ${filename}`);
 }

@@ -12,7 +12,7 @@ export const config = {
   analysis: {
     chunkSize: 4000,
     chunkOverlap: 200,
-    modelName: "claude-3-7-sonnet-20250219",
+    modelName: "claude-opus-4-20250514",
     temperature: 0.2,
   },
 };

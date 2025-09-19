@@ -1,4 +1,10 @@
-page.evaluate: Target page, context or browser has been closed
-    at scanWebsiteWithDirectMcp (/Users/khachatur/Documents/steelpush/src/scanner/direct-mcp-scanner.ts:73:16)
-    at scanWebsite (/Users/khachatur/Documents/steelpush/src/scanner/index.ts:49:14)
-    at main (/Users/khachatur/Documents/steelpush/src/analyze-usetrag-openai.ts:78:20)
+AI_RetryError: Failed after 3 attempts. Last error: This request would exceed the rate limit for your organization (10816110-32e6-4d28-8eca-2cec15a46f27) of 200,000 input tokens per minute. For details, refer to: https://docs.anthropic.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://www.anthropic.com/contact-sales to discuss your options for a rate limit increase.
+    at _retryWithExponentialBackoff (/Users/khachatur/Documents/steelpush/node_modules/.pnpm/ai@4.3.15_react@19.1.0_zod@3.24.4/node_modules/ai/util/retry-with-exponential-backoff.ts:51:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at fn (/Users/khachatur/Documents/steelpush/node_modules/.pnpm/ai@4.3.15_react@19.1.0_zod@3.24.4/node_modules/ai/core/generate-text/generate-text.ts:357:32)
+    at <anonymous> (/Users/khachatur/Documents/steelpush/node_modules/.pnpm/ai@4.3.15_react@19.1.0_zod@3.24.4/node_modules/ai/core/telemetry/record-span.ts:18:22)
+    at async MastraLLM.__text (file:///Users/khachatur/Documents/steelpush/node_modules/.pnpm/@mastra+core@0.9.1_openapi-types@12.1.3_react@19.1.0_zod@3.24.4/node_modules/@mastra/core/dist/chunk-YEA2KXXJ.js:182:12)
+    at async Agent.generate (file:///Users/khachatur/Documents/steelpush/node_modules/.pnpm/@mastra+core@0.9.1_openapi-types@12.1.3_react@19.1.0_zod@3.24.4/node_modules/@mastra/core/dist/chunk-H2UWWO4L.js:980:23)
+    at scanWebsiteWithDirectMcp (/Users/khachatur/Documents/steelpush/src/scanner/direct-mcp-scanner.ts:96:20)
+    at enhanceBasicScan (/Users/khachatur/Documents/steelpush/src/scanner/simple-enhanced-scanner.ts:26:18)
+    at Command.<anonymous> (/Users/khachatur/Documents/steelpush/src/commands/analyze.ts:52:20)

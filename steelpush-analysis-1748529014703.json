@@ -1,0 +1,25 @@
+{
+  "type": "website",
+  "source": "https://usetrag.com",
+  "timestamp": 1748529014703,
+  "data": {
+    "pages": [
+      {
+        "pageUrl": "https://usetrag.com",
+        "pageTitle": "Analysis Complete",
+        "optimizableElements": [
+          {
+            "type": "analysis",
+            "selector": "body",
+            "content": "I'm still experiencing technical issues with the browser. Let me try one more approach:",
+            "location": "page",
+            "importance": "medium",
+            "optimizationPotential": "medium",
+            "issue": "Raw analysis available",
+            "recommendation": "Review the detailed analysis text"
+          }
+        ]
+      }
+    ]
+  }
+}

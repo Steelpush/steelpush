@@ -2,104 +2,226 @@
   <img src="steelpush_emblem.png" alt="Steelpush Logo" width="100" />
 </div>
 
-<h1 align="center">
-    Steelpush: AI Growth Engineer
-</h1>
+# Steelpush
 
-Steelpush is an open-source tool that uses AI agents to analyze websites, generate content variants, 
-simulate user behavior, and provide optimization recommendations - all without requiring backend infrastructure.
+A CLI tool for programmatic website conversion optimization. Steelpush automates the process of identifying, evaluating, and generating optimized website content through structured analysis and approval workflows.
 
-## Features
+## What it does
 
-- 🔍 **Website Analysis**: AI-powered scanning of websites to identify optimization opportunities
-- ✍️ **Content Generation**: Create compelling variants for headlines, CTAs, and other content elements
-- 🧪 **User Simulation**: Simulate visitor behavior with different personas
-- 📊 **Results Analysis**: Data-driven optimization recommendations with confidence scores
-- 🚀 **Export Tools**: Generate implementation code for your website improvements
+Steelpush provides a command-line interface for:
+
+1. **Website scanning** - Analyzes web pages to identify optimization opportunities
+2. **Human approval workflow** - Interactive review of identified opportunities  
+3. **Content generation** - Produces optimized variants for approved opportunities
+
+The tool outputs structured JSON data that follows a defined schema, making it suitable for integration into existing development and optimization workflows.
+
+## Architecture
+
+### Core Components
+
+- **Scanner modules** (`src/scanner/`) - Website analysis engines using browser automation
+- **Format converter** (`src/utils/format-converter.ts`) - Normalizes scan results to REQ format
+- **CLI commands** (`src/commands/`) - Command implementations for analyze, approve, generate
+- **Export system** (`src/exporter/`) - Multiple output formats (JSON, Markdown, CSV)
+
+### Data Flow
+
+```
+Website URL → Scanner → Raw Results → Format Converter → REQ JSON → Human Approval → Content Generation
+```
+
+### REQ Format Schema
+
+Each optimization opportunity contains:
+
+```json
+{
+  "id": "opp_001",
+  "element_type": "headline|cta_button|cta_link|form_element|text_content|testimonial|pricing_element|nav_element",
+  "original_content": "string",
+  "element_selector": "string",
+  "context_description": "string", 
+  "optimization_reasoning": "string",
+  "confidence_score": 0.85,
+  "approved": null|true|false
+}
+```
+
+**Note:** Precise element targeting is currently basic. A browser extension for accurate element selection will be available soon.
 
 ## Installation
 
 ```bash
-# Install the package
 npm install -g steelpush
-
-# Initialize with your API key
 steelpush init
 ```
 
+Requires Node.js 16+ and either OpenAI or Anthropic API credentials.
+
 ## Usage
 
-### Analyze a Website
+### 1. Analyze a website
 
 ```bash
-# Basic analysis
 steelpush analyze https://example.com
-
-# With options
-steelpush analyze https://example.com --max-pages 5 --format markdown --output analysis.md
 ```
 
-### Generate Content Variants
+Outputs:
+- `steelpush-analysis-[timestamp].json` - Full scan results
+- `steelpush-analysis-[timestamp]-req-format.json` - REQ format for approval workflow
+
+Options:
+- `--max-pages <number>` - Pages to scan (default: 3)
+- `--max-depth <number>` - Link crawl depth (default: 2)  
+- `--format <json|markdown|csv>` - Output format
+- `--output <path>` - Custom output file
+- `--screenshots <dir>` - Screenshot directory
+
+### 2. Review and approve opportunities
 
 ```bash
-# Generate variants from analysis
-steelpush generate --input analysis.json
+steelpush approve steelpush-analysis-[timestamp]-req-format.json
 ```
 
-### Simulate User Behavior
+Interactive CLI for reviewing each opportunity:
+- Shows original content and optimization reasoning
+- Prompts for approve/reject/skip decision
+- Updates the JSON file with approval status
+
+### 3. Generate optimized content
 
 ```bash
-# Run simulation on variants
-steelpush simulate --input variants.json
+steelpush generate steelpush-analysis-[timestamp]-req-format.json
 ```
 
-### View Results
+Processes only approved opportunities and outputs optimized content variants.
 
-```bash
-# Get optimization recommendations
-steelpush results --input simulation.json
-```
+## Scanner Implementations
 
-### Export Implementation
+### Direct MCP Scanner (`direct-mcp-scanner.ts`)
 
-```bash
-# Export implementation code
-steelpush export --input results.json --format code
-```
+Uses Model Context Protocol (MCP) with browser automation:
+- Takes screenshots of target pages
+- Sends visual context to LLM via MCP tools
+- Extracts structured optimization opportunities
+- Supports OpenAI and Anthropic models
 
-## Requirements
+### Advanced Scanner (`advanced-scanner.ts`)
 
-- Node.js 16+
-- Either an OpenAI API key or an Anthropic API key
+DOM-based analysis with multiple strategies:
+- Crawls site structure
+- Extracts text content and metadata
+- Applies heuristic analysis for optimization opportunities
+- Faster but less context-aware than MCP scanner
+
+## Content Generation
+
+The generate command creates optimized variants for identified opportunities. Current capabilities include:
+
+- **Content optimization**: Headlines, CTAs, form labels, and body text
+- **Messaging refinement**: Value propositions and benefit-focused language
+- **User experience improvements**: Friction reduction and clarity enhancements
+
+**Future optimization opportunities:**
+- **Pricing strategies**: A/B testing different price points and packaging
+- **Product positioning**: Feature emphasis and competitive differentiation  
+- **Modal and popup content**: Exit-intent offers and engagement flows
+- **Navigation and information architecture**: Menu structure and user paths
+- **Social proof elements**: Testimonials, reviews, and trust indicators
+- **Conversion funnels**: Multi-step form optimization and checkout flows
+
+Generation uses rule-based logic and can be extended with API-based LLM calls for more sophisticated optimization strategies.
+
+**Implementation:** Currently requires manual element identification. A browser extension for precise element targeting and automated implementation will be available soon.
 
 ## Configuration
 
-Steelpush supports both OpenAI and Anthropic Claude models. By default, it uses Anthropic's Claude.
+Config stored in `.steelpush/config.json`:
+
+```json
+{
+  "apiKey": "your-api-key",
+  "provider": "anthropic|openai",
+  "defaultModel": "claude-opus-4-20250514|gpt-4",
+  "screenshotsDir": "screenshots"
+}
+```
+
+## Integration
+
+### CI/CD Integration
 
 ```bash
-# Configure with OpenAI
-steelpush init --provider openai --api-key YOUR_API_KEY
+# In build pipeline
+steelpush analyze $STAGING_URL --format json --output analysis.json
+steelpush generate analysis.json --output optimizations.json
 
-# Configure with Anthropic (default)
-steelpush init --provider anthropic --api-key YOUR_API_KEY
+# Process results programmatically
+node process-optimizations.js optimizations.json
+```
+
+### Programmatic Usage
+
+```javascript
+import { convertToREQFormat } from './src/utils/format-converter.js';
+import { scanWebsiteAdvanced } from './src/scanner/advanced-scanner.js';
+
+const result = await scanWebsiteAdvanced('https://example.com');
+const reqFormat = convertToREQFormat(result);
+// Process reqFormat.opportunities array
+// Note: Element selectors may require manual refinement for precise targeting
 ```
 
 ## Development
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/steelpush.git
 cd steelpush
+pnpm install
 
-# Install dependencies
-npm install
+# Run in development
+pnpm dev
 
-# Build the project
-npm run build
+# Build for production  
+pnpm build
 
-# Run the CLI
-npm start
+# Run tests
+pnpm test
 ```
+
+### File Structure
+
+```
+src/
+├── cli/           # CLI entry point and argument parsing
+├── commands/      # Command implementations (analyze, approve, generate)
+├── scanner/       # Website analysis engines
+├── utils/         # Format conversion and utilities
+├── exporter/      # Output format handlers
+└── types/         # TypeScript type definitions
+```
+
+### Adding New Scanners
+
+Implement the `WebsiteScanner` interface:
+
+```typescript
+interface WebsiteScanner {
+  scan(url: string, options?: ScanOptions): Promise<WebsiteScanResult>;
+}
+```
+
+The format converter handles normalization to REQ format automatically.
+
+## Dependencies
+
+Core dependencies:
+- `playwright` - Browser automation for scanning
+- `commander` - CLI framework
+- `inquirer` - Interactive prompts for approval workflow
+
+The tool is designed to work offline after initial setup, with optional API calls for enhanced content generation.
 
 ## License
 
