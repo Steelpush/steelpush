@@ -45,7 +45,7 @@ Generate 3 optimized variants with scores and reasoning. Format as JSON with the
     );
     
     let aiProvider = "anthropic";
-    let aiModel = "claude-3-7-sonnet-20250219";
+    let aiModel = "claude-opus-4-20250514";
     
     // Check if config exists and read it
     if (fs.existsSync(configPath)) {

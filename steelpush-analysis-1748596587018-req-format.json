@@ -1,0 +1,16 @@
+{
+  "website_url": "https://usetrag.com",
+  "analysis_timestamp": "2025-05-30T09:16:27.018Z",
+  "opportunities": [
+    {
+      "id": "opp_001",
+      "element_type": "text_content",
+      "original_content": "I'll perform a systematic scan of https://usetrag.com following the steps you outlined.\n\nCurrent action: Navigating to https://usetrag.comLet me take a screenshot of the homepage:Current action: Analy",
+      "element_selector": "body",
+      "context_description": "page on /",
+      "optimization_reasoning": "Raw analysis available. Review the detailed analysis text",
+      "confidence_score": 0.8,
+      "approved": null
+    }
+  ]
+}

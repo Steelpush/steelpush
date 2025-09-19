@@ -1,0 +1,25 @@
+{
+  "type": "website",
+  "source": "https://demo.steelpush.com",
+  "timestamp": 1748532876266,
+  "data": {
+    "pages": [
+      {
+        "pageUrl": "https://demo.steelpush.com",
+        "pageTitle": "Scan Failed",
+        "optimizableElements": [
+          {
+            "type": "error",
+            "selector": "body",
+            "content": "Scan failed: prompt is too long: 234672 tokens > 200000 maximum",
+            "location": "N/A",
+            "importance": "high",
+            "optimizationPotential": "medium",
+            "issue": "Scanner error",
+            "recommendation": "Check MCP server and try again"
+          }
+        ]
+      }
+    ]
+  }
+}

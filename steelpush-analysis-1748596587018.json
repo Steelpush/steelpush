@@ -1,0 +1,25 @@
+{
+  "type": "website",
+  "source": "https://usetrag.com",
+  "timestamp": 1748596587018,
+  "data": {
+    "pages": [
+      {
+        "pageUrl": "https://usetrag.com",
+        "pageTitle": "Analysis Complete",
+        "optimizableElements": [
+          {
+            "type": "analysis",
+            "selector": "body",
+            "content": "I'll perform a systematic scan of https://usetrag.com following the steps you outlined.\n\nCurrent action: Navigating to https://usetrag.comLet me take a screenshot of the homepage:Current action: Analy",
+            "location": "page",
+            "importance": "medium",
+            "optimizationPotential": "medium",
+            "issue": "Raw analysis available",
+            "recommendation": "Review the detailed analysis text"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "website_url": "https://usetrag.com",
+  "analysis_timestamp": "2025-05-29T14:30:14.703Z",
+  "opportunities": [
+    {
+      "id": "opp_001",
+      "element_type": "text_content",
+      "original_content": "I'm still experiencing technical issues with the browser. Let me try one more approach:",
+      "element_selector": "body",
+      "context_description": "page on /",
+      "optimization_reasoning": "Raw analysis available. Review the detailed analysis text",
+      "confidence_score": 0.8,
+      "approved": null
+    }
+  ]
+}

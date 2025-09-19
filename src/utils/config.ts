@@ -2,9 +2,9 @@
  * Configuration utilities
  */
 
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
 
 /**
  * Gets the configuration directory path
@@ -12,13 +12,13 @@ import os from 'os';
 export function getConfigDir(): string {
   const configDir = path.join(
     process.env.HOME || process.env.USERPROFILE || os.homedir(),
-    '.steelpush'
+    ".steelpush"
   );
-  
+
   if (!fs.existsSync(configDir)) {
     fs.mkdirSync(configDir, { recursive: true });
   }
-  
+
   return configDir;
 }
 
@@ -26,7 +26,7 @@ export function getConfigDir(): string {
  * Gets the configuration file path
  */
 export function getConfigPath(): string {
-  return path.join(getConfigDir(), 'config.json');
+  return path.join(getConfigDir(), "config.json");
 }
 
 /**
@@ -34,15 +34,15 @@ export function getConfigPath(): string {
  */
 export function loadConfig(): any {
   const configPath = getConfigPath();
-  
+
   if (!fs.existsSync(configPath)) {
     return null;
   }
-  
+
   try {
-    return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    return JSON.parse(fs.readFileSync(configPath, "utf-8"));
   } catch (error) {
-    console.error('Error loading config:', error);
+    console.error("Error loading config:", error);
     return null;
   }
 }
